@@ -23,7 +23,7 @@ const metrics = [
 const timeline = [
     { phase: '01', title: 'Problem definition', detail: 'Mapped the exact moment of friction: the gap between a thought appearing and it being safely stored. Every existing tool was either too slow, too complex, or too ugly to use under cognitive load.' },
     { phase: '02', title: 'Core loop first', detail: 'Built the capture → structure → retrieve loop before any UI polish. Validated that AI-assisted structuring actually saved time vs. raw note-dumping.' },
-    { phase: '03', title: 'Dual model architecture', detail: 'GPT-4o handles real-time structuring and tagging. DeepSeek R1 handles longer reasoning tasks like synthesis and cross-note connections. Each model does what it's best at.' },
+    { phase: '03', title: 'Dual model architecture', detail: "GPT-4o handles real-time structuring and tagging. DeepSeek R1 handles longer reasoning tasks like synthesis and cross-note connections. Each model does what it's best at." },
     { phase: '04', title: 'Finnish-first design', detail: 'Built with Finnish language support from day one — not as an afterthought. Language detection is automatic; the AI responds in the language you input in.' },
     { phase: '05', title: 'PWA + offline core', detail: 'Thought capture cannot depend on network state. Core write operations work offline and sync when connection returns. Mobile home screen installable.' },
     { phase: '06', title: 'Iteration to v4.3', detail: 'Four major versions in under 60 days. Each version focused on a single improvement: speed, then AI quality, then UI clarity, then cross-device sync.' },
