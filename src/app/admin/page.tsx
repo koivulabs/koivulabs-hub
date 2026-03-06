@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 import { projectService } from '@/lib/projectService';
 import { logService, DevLog } from '@/lib/logService';
-import { Project } from '@/constants/projects';
+import { Project, projects as staticProjects } from '@/constants/projects';
 import ProjectForm from '@/components/admin/ProjectForm';
 import LogForm from '@/components/admin/LogForm';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,6 +19,20 @@ export default function AdminPage() {
     const [editingLog, setEditingLog] = useState<DevLog | null>(null);
     const [isAdding, setIsAdding] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [authChecked, setAuthChecked] = useState(false);
+    const [seeding, setSeeding] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                router.push('/admin/login');
+            } else {
+                setAuthChecked(true);
+            }
+        });
+        return () => unsubscribe();
+    }, [router]);
 
     useEffect(() => {
         loadData();
@@ -60,6 +77,25 @@ export default function AdminPage() {
         }
     };
 
+    const handleSeedProjects = async () => {
+        if (!confirm(`Seed ${staticProjects.length} projects from static data to Firebase?`)) return;
+        setSeeding(true);
+        try {
+            await Promise.all(staticProjects.map(p => projectService.saveProject(p)));
+            await loadData();
+        } catch {
+            alert('Seeding failed.');
+        } finally {
+            setSeeding(false);
+        }
+    };
+
+    if (!authChecked) return (
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+            <div className="text-teal-500 animate-pulse font-black italic text-2xl">AUTHENTICATING...</div>
+        </div>
+    );
+
     if (loading && projects.length === 0 && logs.length === 0) return (
         <div className="min-h-screen bg-slate-950 flex items-center justify-center">
             <div className="text-teal-500 animate-pulse font-black italic text-2xl">CO-LOADING...</div>
@@ -91,12 +127,29 @@ export default function AdminPage() {
                             </button>
                         </div>
                     </div>
-                    <button
-                        onClick={() => setIsAdding(true)}
-                        className="px-6 py-3 bg-teal-500 text-slate-950 font-black rounded-xl hover:bg-teal-400 transition-all transform active:scale-95"
-                    >
-                        {activeTab === 'projects' ? 'NEW MISSION +' : 'NEW LOG ENTRY +'}
-                    </button>
+                    <div className="flex items-center gap-3">
+                        {activeTab === 'projects' && projects.length === 0 && (
+                            <button
+                                onClick={handleSeedProjects}
+                                disabled={seeding}
+                                className="px-4 py-3 bg-slate-800 border border-slate-700 text-slate-300 text-xs font-black rounded-xl hover:bg-slate-700 transition-all disabled:opacity-50"
+                            >
+                                {seeding ? 'SEEDING...' : 'SEED FROM STATIC ↓'}
+                            </button>
+                        )}
+                        <button
+                            onClick={() => setIsAdding(true)}
+                            className="px-6 py-3 bg-teal-500 text-slate-950 font-black rounded-xl hover:bg-teal-400 transition-all transform active:scale-95"
+                        >
+                            {activeTab === 'projects' ? 'NEW MISSION +' : 'NEW LOG ENTRY +'}
+                        </button>
+                        <button
+                            onClick={() => signOut(auth).then(() => router.push('/admin/login'))}
+                            className="px-4 py-3 bg-slate-900 border border-slate-800 text-slate-500 text-xs font-black rounded-xl hover:text-red-400 hover:border-red-500/30 transition-all"
+                        >
+                            EXIT
+                        </button>
+                    </div>
                 </header>
 
                 <AnimatePresence mode="wait">

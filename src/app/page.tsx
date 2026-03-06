@@ -60,7 +60,7 @@ export default function Home() {
         <div className="flex justify-center gap-6 mb-4 text-slate-500 text-xs font-bold tracking-widest uppercase">
           <a href="/about" className="hover:text-teal-400 transition-colors">Manifesto</a>
           <a href="/registry" className="hover:text-teal-400 transition-colors">The Registry</a>
-          <a href="mailto:hello@koivulabs.com" className="hover:text-teal-400 transition-colors">Lab Access</a>
+          <a href="/admin/login" className="hover:text-teal-400 transition-colors">Lab Access</a>
         </div>
         <p className="text-slate-600 text-[10px] tracking-tight">
           &copy; {new Date().getFullYear()} KOIVU LABS. BUILT WITH NORDIC PRECISION.
