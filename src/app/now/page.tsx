@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import GitHubCalendar from '@/components/GitHubCalendar';
 
 export const metadata: Metadata = {
     title: 'Now | Koivu Labs',
@@ -93,12 +94,8 @@ export default function NowPage() {
 
                 <section className="mt-14">
                     <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-teal-400 mb-5">Commit Activity</h2>
-                    <div className="p-4 bg-slate-900/40 rounded-2xl border border-slate-800/50 overflow-x-auto">
-                        <img
-                            src="https://ghchart.rshah.org/2dd4bf/akkkrrr"
-                            alt="GitHub contribution calendar"
-                            className="w-full min-w-[600px]"
-                        />
+                    <div className="p-5 bg-slate-900/40 rounded-2xl border border-slate-800/50 overflow-x-auto">
+                        <GitHubCalendar />
                     </div>
                     <p className="text-slate-700 text-xs mt-3 tracking-widest uppercase">github.com/akkkrrr</p>
                 </section>
