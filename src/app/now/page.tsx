@@ -91,6 +91,18 @@ export default function NowPage() {
                     </section>
                 </div>
 
+                <section className="mt-14">
+                    <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-teal-400 mb-5">Commit Activity</h2>
+                    <div className="p-4 bg-slate-900/40 rounded-2xl border border-slate-800/50 overflow-x-auto">
+                        <img
+                            src="https://ghchart.rshah.org/2dd4bf/akkkrrr"
+                            alt="GitHub contribution calendar"
+                            className="w-full min-w-[600px]"
+                        />
+                    </div>
+                    <p className="text-slate-700 text-xs mt-3 tracking-widest uppercase">github.com/akkkrrr</p>
+                </section>
+
                 <div className="mt-16 pt-8 border-t border-slate-800/50 flex justify-between items-center">
                     <Link href="/" className="text-slate-600 hover:text-teal-400 text-[10px] tracking-widest uppercase transition-colors">
                         ← Return to Hub
