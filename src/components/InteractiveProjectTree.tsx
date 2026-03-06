@@ -5,26 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { projects as staticProjects, Project } from '@/constants/projects';
 import Link from 'next/link';
 import { projectService } from '@/lib/projectService';
-
-interface Hotspot {
-    projectId: string;
-    x: number; // Percentage
-    y: number; // Percentage
-}
-
-const hotspots: Hotspot[] = [
-    { projectId: 'brainbuffer', x: 50, y: 15 },      // Apex
-    { projectId: 'vuoto', x: 34.5, y: 28.5 },        // Mid-Left 1
-    { projectId: 'human-dashboard', x: 65.5, y: 28.5 }, // Mid-Right 1
-    { projectId: 'jobbot', x: 26, y: 48.5 },         // Mid-Left 2
-    { projectId: 'vibe-checker', x: 74, y: 48.5 },   // Mid-Right 2
-    { projectId: 'mpm', x: 38, y: 72 },              // Base-Left
-    { projectId: 'vibe-coder', x: 62, y: 72 },       // Base-Right
-];
+import { trackProjectClick } from '@/lib/analytics';
 
 const InteractiveProjectTree: React.FC = () => {
     const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
-    const [imageLoaded, setImageLoaded] = useState(false);
     const [projects, setProjects] = useState<Project[]>(staticProjects);
 
     useEffect(() => {
@@ -43,43 +27,26 @@ const InteractiveProjectTree: React.FC = () => {
 
     return (
         <div className="relative w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden shadow-2xl border border-slate-800/50 group bg-slate-900">
-            {/* Background Image Layer with Placeholder */}
-            {!imageLoaded && (
-                <div className="absolute inset-0 bg-slate-900 animate-pulse flex items-center justify-center">
-                    <div className="text-teal-500/20 text-4xl font-black italic">KOIVU LABS</div>
-                </div>
-            )}
+            {/* Background Image Layer */}
             <div
-                className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
-                    } group-hover:scale-[1.02]`}
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.02]"
                 style={{ backgroundImage: "url('/images/birch_tech_tree.png')" }}
-            >
-                {/* Image element to trigger loading state */}
-                <img
-                    src="/images/birch_tech_tree.png"
-                    alt=""
-                    className="hidden"
-                    onLoad={() => setImageLoaded(true)}
-                />
-            </div>
+            />
 
             {/* Subtle Overlay to make tooltips pop */}
             <div className="absolute inset-0 bg-slate-950/30 pointer-events-none" />
 
             {/* Interactive Hotspots */}
-            {hotspots.map((spot) => {
-                const project = projects.find(p => p.id === spot.projectId);
-                if (!project) return null;
-
+            {projects.map((project) => {
                 const isHovered = hoveredProject?.id === project.id;
 
                 return (
                     <div
-                        key={spot.projectId}
+                        key={project.id}
                         className="absolute -translate-x-1/2 -translate-y-1/2 z-20 group/node"
-                        style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+                        style={{ left: `${project.treePosition.x}%`, top: `${project.treePosition.y}%` }}
                     >
-                        <Link href={`/${project.id}`}>
+                        <Link href={`/${project.id}`} onClick={() => trackProjectClick(project.id)}>
                             <motion.div
                                 onMouseEnter={() => setHoveredProject(project)}
                                 onMouseLeave={() => setHoveredProject(null)}
