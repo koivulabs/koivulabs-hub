@@ -1,0 +1,32 @@
+import { projects } from '@/constants/projects';
+
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-slate-950 text-white p-8 font-sans">
+      <header className="max-w-4xl mx-auto mb-16 text-center">
+        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
+          Koivu Labs
+        </h1>
+        <p className="text-xl text-slate-400 italic">
+          "Maalaisjärki meets AI — Ohjelmistostudio Saarijärveltä."
+        </p>
+      </header>
+
+      <section className="max-w-4xl mx-auto grid gap-6 md:grid-cols-2">
+        {projects.map((project) => (
+          <div key={project.id} className="p-6 rounded-xl border border-slate-800 bg-slate-900/50 hover:border-teal-500 transition-colors">
+            <h2 className="text-2xl font-semibold mb-2">{project.name}</h2>
+            <p className="text-slate-400 mb-4">{project.description}</p>
+            <a href={project.url} className="text-teal-400 hover:underline">
+              Tutustu projektiin →
+            </a>
+          </div>
+        ))}
+      </section>
+
+      <footer className="max-w-4xl mx-auto mt-20 text-center text-slate-500">
+        <p>© 2026 Koivu Labs. Built with 🌲 and AI.</p>
+      </footer>
+    </main>
+  );
+}
