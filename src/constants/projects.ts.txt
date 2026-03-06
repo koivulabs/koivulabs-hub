@@ -1,0 +1,75 @@
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  logoUrl: string;
+  category: 'Productivity' | 'Finance' | 'Social' | 'Utility';
+  status: 'Flagship' | 'Active Lab' | 'Archive';
+}
+
+export const projects: Project[] = [
+  {
+    id: 'brainbuffer',
+    name: 'BrainBuffer',
+    description: 'Minimalistinen työkalu ideoiden ja ajatusten välittömään tallennukseen.',
+    url: 'https://brainbuffer.app',
+    logoUrl: '/logos/brainbuffer.png',
+    category: 'Productivity',
+    status: 'Flagship'
+  },
+  {
+    id: 'vuoto',
+    name: 'Vuoto',
+    description: 'Talousseuranta ja kuittien hallinta: lopeta rahan "vuotaminen".',
+    url: 'https://receipt-2b283.web.app/', // Myöhemmin vuoto.koivulabs.com
+    logoUrl: '/logos/vuoto.png',
+    category: 'Finance',
+    status: 'Active Lab'
+  },
+  {
+    id: 'human-dashboard',
+    name: 'Human Dashboard',
+    description: 'Kaikki projektit ja elämän hallinta yhdessä näkymässä.',
+    url: 'https://human-dash2.vercel.app/',
+    logoUrl: '/logos/human-dash.png',
+    category: 'Productivity',
+    status: 'Active Lab'
+  },
+  {
+    id: 'jobbot',
+    name: 'JobBot',
+    description: 'Älykäs työkalu työnhakuun ja uran hallintaan.',
+    url: '#',
+    logoUrl: '/logos/jobbot.png',
+    category: 'Utility',
+    status: 'Active Lab'
+  },
+  {
+    id: 'vibe-checker',
+    name: 'Vibe Checker',
+    description: 'Sosiaalisen energian ja fiiliksen analysointi.',
+    url: '#',
+    logoUrl: '/logos/vibe.png',
+    category: 'Social',
+    status: 'Active Lab'
+  },
+  {
+    id: 'mpm',
+    name: 'MPM',
+    description: 'Multi-Project Manager: ensimmäisiä kokeiluja koodauksessa.',
+    url: '#',
+    logoUrl: '/logos/mpm.png',
+    category: 'Utility',
+    status: 'Archive'
+  },
+  {
+    id: 'vibe-coder',
+    name: 'Vibe Coder',
+    description: 'Työkalu "vibe coding" -metodin hyödyntämiseen.',
+    url: '#',
+    logoUrl: '/logos/vibecoder.png',
+    category: 'Utility',
+    status: 'Archive'
+  }
+];
