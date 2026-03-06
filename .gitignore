@@ -33,4 +33,5 @@ next-env.d.ts
 # Koivu Labs specific
 /agenthub
 *.txt
+!public/llms.txt
  Aurora.

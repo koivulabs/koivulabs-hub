@@ -1,0 +1,29 @@
+# Koivu Labs
+
+> A Finnish Software Studio focused on AI-driven utility. Bridging human common sense with AI power.
+
+Koivu Labs is an independent software studio founded in 2026 in Saarijärvi, Finland. The studio builds pragmatic, AI-first digital tools designed to solve real problems with minimal friction.
+
+## Studio
+
+- **Founded:** 2026
+- **Location:** Saarijärvi, Finland
+- **Philosophy:** Pragmatic Intelligence — Nordic precision meets modern AI capability
+- **Contact:** hello@koivulabs.com
+
+## Projects
+
+- **BrainBuffer** — Thought capture at the speed of light. Minimalist tool for instant idea preservation.
+- **Human Dashboard** — Central OS for life and projects. Everything manageable in one sophisticated view.
+- **Vuoto** — Financial tracking and receipt management. Stop your money from leaking.
+- **JobBot** — Intelligent tool for job seeking and career management.
+- **Vibe Checker** — Analysis of social energy and vibes for optimized interaction.
+- **Vibe Coder** — Tool for utilizing the "vibe coding" method in modern development.
+- **MPM** — Multi-Project Manager. Early coding experiments in project organization.
+
+## Pages
+
+- [Home](https://koivulabs.com) — The Birch Tech-Tree ecosystem overview
+- [Founder's Log](https://koivulabs.com/logbook) — Dev blog and studio updates
+- [Manifesto](https://koivulabs.com/about) — Studio philosophy and founder's journey
+- [Registry](https://koivulabs.com/registry) — Full project registry

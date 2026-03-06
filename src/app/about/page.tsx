@@ -1,5 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Manifesto | Koivu Labs',
+    description: 'A software studio from Saarijärvi, Finland. Rooted in Nordic precision, powered by modern intelligence. The story of Koivu Labs and its founder.',
+};
 
 export default function AboutPage() {
     return (

@@ -2,9 +2,24 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { projects } from '@/constants/projects';
 import Link from 'next/link';
+import { Metadata } from 'next';
 
 interface ProductPageProps {
     params: Promise<{ projectId: string }>;
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+    const { projectId } = await params;
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return {};
+    return {
+        title: `${project.name} | Koivu Labs`,
+        description: project.description,
+        openGraph: {
+            title: `${project.name} | Koivu Labs`,
+            description: project.description,
+        },
+    };
 }
 
 export async function generateStaticParams() {

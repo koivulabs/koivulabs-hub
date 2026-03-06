@@ -34,6 +34,21 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Koivu Labs',
+  url: 'https://koivulabs.com',
+  email: 'hello@koivulabs.com',
+  description: 'A Finnish Software Studio focused on AI-driven utility. Bridging human common sense with AI power.',
+  foundingDate: '2026',
+  foundingLocation: {
+    '@type': 'Place',
+    name: 'Saarijärvi, Finland',
+  },
+  sameAs: ['https://github.com/koivulabs'],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -41,6 +56,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${inter.className} min-h-screen bg-slate-950 text-slate-50`}>
         {children}
       </body>

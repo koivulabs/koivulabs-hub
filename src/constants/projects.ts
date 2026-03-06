@@ -28,7 +28,7 @@ export const projects: Project[] = [
         techStack: ['Next.js', 'PostgreSQL', 'Whisper AI', 'Tailwind CSS'],
         vision: 'To make the gap between thought and storage zero.',
         currentMission: 'Optimizing Voice-to-Text latency for instant capture.',
-        treePosition: { x: 35, y: 15 }
+        treePosition: { x: 50, y: 15 }
     },
     {
         id: 'human-dashboard',
@@ -43,7 +43,7 @@ export const projects: Project[] = [
         techStack: ['React', 'Supabase', 'TypeScript', 'Node.js'],
         vision: 'The operating system for the modern human.',
         currentMission: 'Integrating GitHub contribution calendar into the main view.',
-        treePosition: { x: 20, y: 35 }
+        treePosition: { x: 66, y: 29 }
     },
     {
         id: 'vuoto',
@@ -58,7 +58,7 @@ export const projects: Project[] = [
         techStack: ['Next.js', 'Firebase', 'Google Vision API', 'Chart.js'],
         vision: 'Financial clarity through pragmatic intelligence.',
         currentMission: 'Refining OCR accuracy for complex retail receipts.',
-        treePosition: { x: 55, y: 30 }
+        treePosition: { x: 35, y: 29 }
     },
     {
         id: 'jobbot',
@@ -73,7 +73,7 @@ export const projects: Project[] = [
         techStack: ['Python', 'FastAPI', 'Llama 3', 'React'],
         vision: 'Taking the stress out of professional growth.',
         currentMission: 'Expanding market insight scraping to international platforms.',
-        treePosition: { x: 15, y: 55 }
+        treePosition: { x: 26, y: 49 }
     },
     {
         id: 'vibe-checker',
@@ -88,7 +88,7 @@ export const projects: Project[] = [
         techStack: ['Next.js', 'OpenAI API', 'Tailwind CSS', 'Framer Motion'],
         vision: 'Quantifying the unquantifiable social energy.',
         currentMission: 'Training neural models on nuanced Nordic communication styles.',
-        treePosition: { x: 65, y: 50 }
+        treePosition: { x: 74, y: 49 }
     },
     {
         id: 'mpm',
@@ -102,7 +102,7 @@ export const projects: Project[] = [
         features: ['Simple Task Lists', 'Basic Time Tracking', 'File Organization', 'Context Notes'],
         techStack: ['HTML/CSS', 'JavaScript', 'Local Storage'],
         vision: 'The beginning of organized digital life.',
-        treePosition: { x: 45, y: 65 }
+        treePosition: { x: 38, y: 72 }
     },
     {
         id: 'vibe-coder',
@@ -117,6 +117,6 @@ export const projects: Project[] = [
         techStack: ['Next.js', 'Claude API', 'Tailwind CSS', 'Monaco Editor'],
         vision: 'Redefining development at the speed of thought.',
         currentMission: 'Exploring late-stage code generation with deep context injection.',
-        treePosition: { x: 30, y: 75 }
+        treePosition: { x: 62, y: 72 }
     }
 ];
