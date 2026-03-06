@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import ContactForm from '@/components/ContactForm';
 
 export const metadata: Metadata = {
     title: 'Services | Koivu Labs',
@@ -100,19 +101,19 @@ export default function ServicesPage() {
                     ))}
                 </div>
 
-                <div className="mt-24 p-12 tree-glass border-teal-500/20 nordic-glow text-center">
-                    <h2 className="text-2xl font-bold italic text-slate-100 mb-4">
-                        Ready to work with the lab?
-                    </h2>
-                    <p className="text-slate-400 mb-8 max-w-md mx-auto">
-                        Direct communication. No account managers, no delays. Tell us what you're building.
-                    </p>
-                    <a
-                        href="mailto:hello@koivulabs.com"
-                        className="inline-block px-8 py-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-black rounded-lg transition-all transform hover:scale-105"
-                    >
-                        hello@koivulabs.com
-                    </a>
+                <div className="mt-24 p-8 md:p-12 tree-glass border-teal-500/20 nordic-glow">
+                    <div className="mb-10">
+                        <div className="inline-block px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-[10px] font-bold tracking-[0.3em] uppercase mb-4">
+                            Start a Conversation
+                        </div>
+                        <h2 className="text-3xl font-bold italic text-slate-100 mb-3">
+                            Work with the lab.
+                        </h2>
+                        <p className="text-slate-400 max-w-lg">
+                            Direct line. No account managers, no delays. Describe what you're building and let's figure out if there's a fit.
+                        </p>
+                    </div>
+                    <ContactForm />
                 </div>
 
                 <div className="mt-12 text-center">

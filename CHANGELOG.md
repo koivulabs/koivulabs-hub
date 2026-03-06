@@ -4,6 +4,22 @@ All notable changes to this project are documented here.
 
 ---
 
+## [2.0.0] — 2026-03-06
+
+### Added
+- **RSS feed** — Live Logbook RSS feed at `/rss.xml`. Reads published entries from Firestore via REST API. Includes title, excerpt, pub date, and permalink per entry.
+- **BrainBuffer case study** — Full case study page at `/case-study/brainbuffer`. Covers problem, solution, dual-model architecture, build timeline (6 phases), tech stack, and key learnings.
+- **Contact form** — Replaced mailto CTA on Services page with a functional contact form. Fields: name, email, subject (dropdown by service type), message. Posts to `/api/contact`. Shows success state on submit.
+- **Social placeholder links** — GitHub, X/Twitter, LinkedIn icons added to Navbar (desktop) and homepage footer. Currently `#` — ready to swap in real URLs.
+- **RSS icon** — RSS link added to homepage footer alongside social icons.
+
+### Changed
+- **Services page** — CTA section redesigned from centered button to left-aligned form with header context.
+- **Sitemap** — Added `/case-study/brainbuffer` route.
+- **BrainBuffer project page** — "Read Case Study →" link added below "Launch Instance" CTA.
+
+---
+
 ## [1.9.0] — 2026-03-06
 
 ### Added

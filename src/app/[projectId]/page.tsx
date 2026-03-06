@@ -111,10 +111,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             <a
                                 href={project.url}
                                 target="_blank"
-                                className="text-slate-100 font-bold tracking-widest uppercase hover:text-teal-400 transition-colors"
+                                className="text-slate-100 font-bold tracking-widest uppercase hover:text-teal-400 transition-colors block mb-3"
                             >
                                 Launch Instance →
                             </a>
+                            {project.id === 'brainbuffer' && (
+                                <Link
+                                    href="/case-study/brainbuffer"
+                                    className="text-teal-400/60 text-xs font-bold tracking-widest uppercase hover:text-teal-400 transition-colors"
+                                >
+                                    Read Case Study →
+                                </Link>
+                            )}
                         </div>
 
                         {/* Subtle Nordic Gradient Overlay */}
