@@ -26,7 +26,7 @@ export default function LogEntryPage({ params }: Props) {
                         setMissing(true);
                     } else {
                         setLog(data);
-                        document.title = `${data.title} | Koivu Labs`;
+                        document.title = `${data.metaTitle || data.title} | Koivu Labs`;
                     }
                 })
                 .finally(() => setLoading(false));
