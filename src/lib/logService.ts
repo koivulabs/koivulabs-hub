@@ -8,7 +8,6 @@ import {
     deleteDoc,
     query,
     orderBy,
-    where,
     Timestamp
 } from "firebase/firestore";
 
@@ -25,14 +24,10 @@ const LOGS_COLLECTION = "logs";
 
 export const logService = {
     async getAllLogs(includeDrafts = false): Promise<DevLog[]> {
-        let q = query(collection(db, LOGS_COLLECTION), orderBy("publishedAt", "desc"));
-
-        if (!includeDrafts) {
-            q = query(q, where("status", "==", "Published"));
-        }
-
+        const q = query(collection(db, LOGS_COLLECTION), orderBy("publishedAt", "desc"));
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => doc.data() as DevLog);
+        const logs = querySnapshot.docs.map(doc => doc.data() as DevLog);
+        return includeDrafts ? logs : logs.filter(log => log.status === 'Published');
     },
 
     async saveLog(log: DevLog): Promise<void> {
