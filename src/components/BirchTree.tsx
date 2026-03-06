@@ -1,23 +1,27 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { projects } from '@/constants/projects';
+import { projects as staticProjects, Project } from '@/constants/projects';
 import LeafNode from './LeafNode';
+import { projectService } from '@/lib/projectService';
 
 const BirchTree: React.FC = () => {
-    // Manual positions for the 7 projects to make the tree look natural
-    // Percentage based (x, y) relative to the container
-    const positions = [
-        { x: 35, y: 15 }, // BrainBuffer (Top)
-        { x: 20, y: 35 }, // Human Dashboard (Left Branch)
-        { x: 55, y: 30 }, // Vuoto (Right Branch)
-        { x: 15, y: 55 }, // JobBot (Lower Left)
-        { x: 65, y: 50 }, // Vibe Checker (Middle Right)
-        { x: 45, y: 65 }, // MPM (Lower Middle)
-        { x: 30, y: 75 }, // Vibe Coder (Bottom)
-    ];
+    const [projects, setProjects] = useState<Project[]>(staticProjects);
 
+    useEffect(() => {
+        const loadDynamicProjects = async () => {
+            try {
+                const dynamicData = await projectService.getAllProjects();
+                if (dynamicData.length > 0) {
+                    setProjects(dynamicData);
+                }
+            } catch (error) {
+                console.error("Firebase not configured or empty, using static data.", error);
+            }
+        };
+        loadDynamicProjects();
+    }, []);
     return (
         <div className="relative w-full max-w-[800px] aspect-[4/5] mx-auto md:-mt-20">
             {/* SVG Tree Frame */}
@@ -97,8 +101,8 @@ const BirchTree: React.FC = () => {
                     <LeafNode
                         key={project.id}
                         project={project}
-                        x={positions[index].x}
-                        y={positions[index].y}
+                        x={project.treePosition.x}
+                        y={project.treePosition.y}
                         delay={1.5 + index * 0.1}
                     />
                 ))}

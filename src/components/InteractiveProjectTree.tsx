@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { projects, Project } from '@/constants/projects';
+import { projects as staticProjects, Project } from '@/constants/projects';
 import Link from 'next/link';
+import { projectService } from '@/lib/projectService';
 
 interface Hotspot {
     projectId: string;
@@ -23,17 +24,47 @@ const hotspots: Hotspot[] = [
 
 const InteractiveProjectTree: React.FC = () => {
     const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [projects, setProjects] = useState<Project[]>(staticProjects);
+
+    useEffect(() => {
+        const loadDynamicProjects = async () => {
+            try {
+                const dynamicData = await projectService.getAllProjects();
+                if (dynamicData.length > 0) {
+                    setProjects(dynamicData);
+                }
+            } catch (error) {
+                console.warn("Using static project data (Firebase not connected)");
+            }
+        };
+        loadDynamicProjects();
+    }, []);
 
     return (
-        <div className="relative w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden shadow-2xl border border-slate-800/50 group">
-            {/* Background Image Layer */}
+        <div className="relative w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden shadow-2xl border border-slate-800/50 group bg-slate-900">
+            {/* Background Image Layer with Placeholder */}
+            {!imageLoaded && (
+                <div className="absolute inset-0 bg-slate-900 animate-pulse flex items-center justify-center">
+                    <div className="text-teal-500/20 text-4xl font-black italic">KOIVU LABS</div>
+                </div>
+            )}
             <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.02]"
+                className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+                    } group-hover:scale-[1.02]`}
                 style={{ backgroundImage: "url('/images/birch_tech_tree.png')" }}
-            />
+            >
+                {/* Image element to trigger loading state */}
+                <img
+                    src="/images/birch_tech_tree.png"
+                    alt=""
+                    className="hidden"
+                    onLoad={() => setImageLoaded(true)}
+                />
+            </div>
 
             {/* Subtle Overlay to make tooltips pop */}
-            <div className="absolute inset-0 bg-slate-950/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-slate-950/30 pointer-events-none" />
 
             {/* Interactive Hotspots */}
             {hotspots.map((spot) => {
@@ -113,6 +144,15 @@ const InteractiveProjectTree: React.FC = () => {
                             <p className="text-sm text-slate-300 leading-relaxed italic">
                                 "{hoveredProject.description}"
                             </p>
+
+                            {hoveredProject.currentMission && (
+                                <div className="p-3 bg-teal-500/5 border border-teal-500/10 rounded-xl">
+                                    <h4 className="text-[10px] text-teal-400 font-black tracking-widest uppercase mb-1">Current Mission</h4>
+                                    <p className="text-[11px] text-slate-200 leading-snug">
+                                        {hoveredProject.currentMission}
+                                    </p>
+                                </div>
+                            )}
 
                             <div className="pt-4 border-t border-slate-800/50">
                                 <h4 className="text-[10px] text-slate-500 font-bold tracking-widest uppercase mb-2">Core Tech</h4>

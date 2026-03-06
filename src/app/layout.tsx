@@ -5,6 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://koivulabs.com'),
   title: "Koivu Labs | Pragmatic Intelligence",
   description: "A Finnish Software Studio focused on AI-driven utility. Bridging human common sense with AI power.",
   keywords: ["Koivu Labs", "AI", "Software Studio", "Finland", "Pragmatic Intelligence", "BrainBuffer", "Human Dashboard"],
@@ -16,11 +17,20 @@ export const metadata: Metadata = {
     siteName: "Koivu Labs",
     locale: "en_FI",
     type: "website",
+    images: [
+      {
+        url: '/images/og-main.png',
+        width: 1200,
+        height: 630,
+        alt: 'Koivu Labs - Pragmatic Intelligence',
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Koivu Labs | Pragmatic Intelligence",
     description: "A Finnish Software Studio focused on AI-driven utility.",
+    images: ['/images/og-main.png'],
   },
 };
 

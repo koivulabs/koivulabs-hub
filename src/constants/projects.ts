@@ -10,6 +10,8 @@ export interface Project {
     features: string[];
     techStack: string[];
     vision: string;
+    currentMission?: string;
+    treePosition: { x: number; y: number };
 }
 
 export const projects: Project[] = [
@@ -24,7 +26,9 @@ export const projects: Project[] = [
         status: 'Flagship',
         features: ['Instant Voice Capture', 'Minimalist UI', 'Bi-directional Sync', 'Offline First'],
         techStack: ['Next.js', 'PostgreSQL', 'Whisper AI', 'Tailwind CSS'],
-        vision: 'To make the gap between thought and storage zero.'
+        vision: 'To make the gap between thought and storage zero.',
+        currentMission: 'Optimizing Voice-to-Text latency for instant capture.',
+        treePosition: { x: 35, y: 15 }
     },
     {
         id: 'human-dashboard',
@@ -37,7 +41,9 @@ export const projects: Project[] = [
         status: 'Active Lab',
         features: ['Unified API Integration', 'Health Metric Tracking', 'Project Lifecycle Management', 'Visual Goal Mapping'],
         techStack: ['React', 'Supabase', 'TypeScript', 'Node.js'],
-        vision: 'The operating system for the modern human.'
+        vision: 'The operating system for the modern human.',
+        currentMission: 'Integrating GitHub contribution calendar into the main view.',
+        treePosition: { x: 20, y: 35 }
     },
     {
         id: 'vuoto',
@@ -50,7 +56,9 @@ export const projects: Project[] = [
         status: 'Active Lab',
         features: ['AI Receipt Scanning', 'Leakage Analytics', 'Multi-currency Support', 'Exportable Reports'],
         techStack: ['Next.js', 'Firebase', 'Google Vision API', 'Chart.js'],
-        vision: 'Financial clarity through pragmatic intelligence.'
+        vision: 'Financial clarity through pragmatic intelligence.',
+        currentMission: 'Refining OCR accuracy for complex retail receipts.',
+        treePosition: { x: 55, y: 30 }
     },
     {
         id: 'jobbot',
@@ -63,7 +71,9 @@ export const projects: Project[] = [
         status: 'Active Lab',
         features: ['Application Tracker', 'CV Analysis', 'Interview Simulation', 'Market Insight Scraping'],
         techStack: ['Python', 'FastAPI', 'Llama 3', 'React'],
-        vision: 'Taking the stress out of professional growth.'
+        vision: 'Taking the stress out of professional growth.',
+        currentMission: 'Expanding market insight scraping to international platforms.',
+        treePosition: { x: 15, y: 55 }
     },
     {
         id: 'vibe-checker',
@@ -76,7 +86,9 @@ export const projects: Project[] = [
         status: 'Active Lab',
         features: ['Sentiment Heatmaps', 'Digital Tone Analysis', 'Interaction Energy Modeling', 'Vibe Notifications'],
         techStack: ['Next.js', 'OpenAI API', 'Tailwind CSS', 'Framer Motion'],
-        vision: 'Quantifying the unquantifiable social energy.'
+        vision: 'Quantifying the unquantifiable social energy.',
+        currentMission: 'Training neural models on nuanced Nordic communication styles.',
+        treePosition: { x: 65, y: 50 }
     },
     {
         id: 'mpm',
@@ -89,7 +101,8 @@ export const projects: Project[] = [
         status: 'Legacy',
         features: ['Simple Task Lists', 'Basic Time Tracking', 'File Organization', 'Context Notes'],
         techStack: ['HTML/CSS', 'JavaScript', 'Local Storage'],
-        vision: 'The beginning of organized digital life.'
+        vision: 'The beginning of organized digital life.',
+        treePosition: { x: 45, y: 65 }
     },
     {
         id: 'vibe-coder',
@@ -102,6 +115,8 @@ export const projects: Project[] = [
         status: 'Experimental',
         features: ['Intent-to-Code mapping', 'Vibe-based Debugging', 'Dynamic Code Generation', 'Feedback Loops'],
         techStack: ['Next.js', 'Claude API', 'Tailwind CSS', 'Monaco Editor'],
-        vision: 'Redefining development at the speed of thought.'
+        vision: 'Redefining development at the speed of thought.',
+        currentMission: 'Exploring late-stage code generation with deep context injection.',
+        treePosition: { x: 30, y: 75 }
     }
 ];

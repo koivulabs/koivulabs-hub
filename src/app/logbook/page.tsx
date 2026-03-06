@@ -1,65 +1,90 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { logService, DevLog } from '@/lib/logService';
 import Link from 'next/link';
 
-const posts = [
-    {
-        date: 'March 6, 2026',
-        title: 'The "Old Man" and the AI: Why I started this.',
-        excerpt: 'In January, I didn\'t know what Firebase was. I just wanted to see if I could keep up. Here is what happened...',
-        category: 'The Journey'
-    },
-    {
-        date: 'February 20, 2026',
-        title: 'Vibe Coding: Moving at the speed of thought.',
-        excerpt: 'Testing the limits of high-level intent with AI execution. It’s not about typing; it’s about having a vision.',
-        category: 'Engineering'
-    }
-];
-
 export default function LogbookPage() {
-    return (
-        <main className="min-h-screen pt-24 pb-32 px-6 md:px-12 lg:px-24 bg-slate-950">
-            <Link href="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-teal-400 transition-colors mb-16 uppercase tracking-widest text-xs font-bold">
-                ← Return to Hub
-            </Link>
+    const [logs, setLogs] = useState<DevLog[]>([]);
+    const [loading, setLoading] = useState(true);
 
-            <div className="max-w-4xl mx-auto">
-                <div className="mb-20">
-                    <div className="inline-block px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-[10px] font-bold tracking-[0.3em] uppercase mb-6">
-                        Internal Archive
-                    </div>
-                    <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-100 mb-6 italic">
+    useEffect(() => {
+        const loadLogs = async () => {
+            try {
+                const data = await logService.getAllLogs();
+                setLogs(data);
+            } catch (error) {
+                console.error("Failed to load logbook:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadLogs();
+    }, []);
+
+    if (loading) return (
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+            <div className="text-teal-500 animate-pulse font-black italic text-2xl">OPENING LOGS...</div>
+        </div>
+    );
+
+    return (
+        <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24">
+            <div className="max-w-3xl mx-auto">
+                <header className="mb-20">
+                    <Link href="/" className="text-teal-500 text-xs font-bold tracking-widest uppercase hover:underline mb-8 inline-block">
+                        ← Return to Lab
+                    </Link>
+                    <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-100 italic">
                         Founder's <span className="text-teal-400">Log</span>
                     </h1>
-                    <p className="text-xl text-slate-400 font-light leading-relaxed max-w-2xl">
-                        A raw, pragmatic account of the "Old Man's" journey through the AI revolution.
-                        From January ignorance to real-world utility.
+                    <p className="text-slate-500 text-sm mt-4 uppercase tracking-[0.3em] font-medium">
+                        Raw technical insights and studio updates.
                     </p>
-                </div>
+                </header>
 
-                <div className="space-y-12">
-                    {posts.map((post, i) => (
-                        <article key={i} className="group p-8 tree-glass hover:border-teal-500/30 transition-all duration-500 cursor-pointer">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                                <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">
-                                    {post.date} / {post.category}
-                                </span>
-                            </div>
-                            <h2 className="text-3xl font-bold text-slate-100 group-hover:text-teal-400 transition-colors mb-4 italic">
-                                {post.title}
-                            </h2>
-                            <p className="text-slate-400 leading-relaxed text-lg mb-6">
-                                {post.excerpt}
-                            </p>
-                            <div className="text-teal-400 text-xs font-bold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
-                                Read Entry →
-                            </div>
-                        </article>
-                    ))}
-                </div>
-
-                <div className="mt-20 p-8 rounded-3xl bg-slate-900/40 border border-slate-800/50 text-center italic">
-                    <p className="text-slate-500">More entries being declassified as the lab expands.</p>
+                <div className="space-y-32">
+                    {logs.length === 0 ? (
+                        <div className="tree-glass p-12 text-center text-slate-500 italic">
+                            The logbook is currently empty. Missions in progress.
+                        </div>
+                    ) : (
+                        logs.map((log, index) => (
+                            <motion.article
+                                key={log.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.1 }}
+                                className="relative group"
+                            >
+                                <div className="absolute -left-12 top-0 bottom-0 w-px bg-slate-800 hidden md:block">
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-teal-500 shadow-[0_0_10px_rgba(45,212,191,0.5)]" />
+                                </div>
+                                <div className="flex flex-col gap-4">
+                                    <time className="text-teal-500/50 text-[10px] font-black tracking-widest uppercase">
+                                        {new Date(log.publishedAt?.seconds * 1000).toLocaleDateString('fi-FI')}
+                                    </time>
+                                    <h2 className="text-3xl md:text-4xl font-bold text-slate-100 group-hover:text-teal-400 transition-colors">
+                                        {log.title}
+                                    </h2>
+                                    <div className="prose prose-invert max-w-none text-slate-400 leading-relaxed text-lg">
+                                        {log.content.split('\n').map((para, i) => (
+                                            <p key={i} className="mb-4">{para}</p>
+                                        ))}
+                                    </div>
+                                    <div className="flex gap-2 mt-4">
+                                        {log.tags?.map(tag => (
+                                            <span key={tag} className="text-[10px] px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-500 font-bold uppercase">
+                                                #{tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </motion.article>
+                        ))
+                    )}
                 </div>
             </div>
         </main>

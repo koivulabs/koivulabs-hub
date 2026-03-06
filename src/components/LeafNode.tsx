@@ -76,6 +76,12 @@ const LeafNode: React.FC<LeafNodeProps> = ({ project, x, y, delay = 0 }) => {
                         <p className="text-xs text-slate-400 leading-snug">
                             {project.description}
                         </p>
+                        {project.currentMission && (
+                            <div className="mt-2 p-1.5 bg-teal-500/5 border border-teal-500/10 rounded-lg">
+                                <p className="text-[9px] text-teal-400 font-black tracking-widest uppercase">Mission</p>
+                                <p className="text-[10px] text-slate-300 leading-tight">{project.currentMission}</p>
+                            </div>
+                        )}
                         <div className="mt-3 flex items-center gap-1 text-[10px] text-teal-400/80 font-medium italic">
                             Explore Product <span className="text-lg">→</span>
                         </div>

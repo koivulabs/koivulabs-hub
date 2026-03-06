@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-slate-950: #020617;
@@ -67,7 +68,7 @@ body {
   background: var(--background);
   font-family: var(--font-inter);
   overflow-x: hidden;
-  @apply antialiased;
+  @apply antialiased selection:bg-teal-500/30;
 }
 
 @utility birch-gradient {
@@ -83,7 +84,7 @@ body {
 }
 
 @utility tree-glass {
-  @apply bg-slate-900/40 backdrop-blur-md border border-slate-800/50 rounded-2xl;
+  @apply bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-2xl shadow-2xl;
 }
 
 @utility leaf-glow {
