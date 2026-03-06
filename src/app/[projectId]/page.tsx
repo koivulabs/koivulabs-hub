@@ -97,6 +97,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             <div className="flex flex-wrap gap-2">
                                 {project.techStack.map((tech, i) => (
                                     <TechBadge key={i} tech={tech} />
+                                ))}
                             </div>
                         </div>
                     </div>

@@ -15,9 +15,11 @@ export default function LogEntryPage({ params }: Props) {
     const [log, setLog] = useState<DevLog | null>(null);
     const [loading, setLoading] = useState(true);
     const [missing, setMissing] = useState(false);
+    const [pageUrl, setPageUrl] = useState('');
 
     useEffect(() => {
         params.then(({ slug }) => {
+            setPageUrl(`https://koivulabs.com/logbook/${slug}`);
             logService.getLog(slug)
                 .then(data => {
                     if (!data || data.status !== 'Published') {
@@ -38,9 +40,6 @@ export default function LogEntryPage({ params }: Props) {
     );
 
     if (missing || !log) return notFound();
-
-    const slug = (await params).slug;
-    const pageUrl = `https://koivulabs.com/logbook/${slug}`;
 
     return (
         <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24">
