@@ -1,26 +1,148 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-slate-950: #020617;
+  --color-slate-900: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-50: #f8fafc;
+  --color-birch-teal: #2dd4bf;
+  --color-birch-white: #e2e8f0;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
+  @keyframes glow-pulse {
+
+    0%,
+    100% {
+      filter: blur(4px) brightness(1);
+      opacity: 0.6;
+    }
+
+    50% {
+      filter: blur(8px) brightness(1.5);
+      opacity: 0.9;
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  --animation-fade-in: fade-in 0.8s ease-out forwards;
+  --animation-glow-pulse: glow-pulse 3s infinite ease-in-out;
+  --animation-float: float 4s infinite ease-in-out;
+}
+
+:root {
+  --background: var(--color-slate-950);
+  --foreground: var(--color-slate-50);
+  --birch-teal: var(--color-birch-teal);
+  --birch-white: var(--color-birch-white);
+  --teal-glow-shadow: 0 0 15px rgba(45, 212, 191, 0.5);
+  --birch-gradient-color: rgba(45, 212, 191, 0.1);
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  font-family: var(--font-inter);
+  overflow-x: hidden;
+  @apply antialiased;
+}
+
+@utility birch-gradient {
+  background: linear-gradient(135deg, var(--birch-gradient-color) 0%, transparent 100%);
+}
+
+@utility birch-border {
+  @apply border border-teal-500/20 hover:border-teal-500/50 transition-colors duration-300;
+}
+
+@utility nordic-glow {
+  box-shadow: 0 0 30px -10px rgba(45, 212, 191, 0.3);
+}
+
+@utility tree-glass {
+  @apply bg-slate-900/40 backdrop-blur-md border border-slate-800/50 rounded-2xl;
+}
+
+@utility leaf-glow {
+  animation: glow-pulse 3s infinite ease-in-out;
+  @apply bg-teal-400/50;
+  box-shadow: var(--teal-glow-shadow);
+}
+
+/* Custom scrollbar for Nordic Noir vibe */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2dd4bf;
+}
+
+.tree-node-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-tree 2s ease-out forwards;
+}
+
+@keyframes draw-tree {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+@utility node-pulse {
+  position: absolute;
+  inset: -15px;
+  border: 1px solid #2dd4bf;
+  border-radius: 100%;
+  animation: pulse-ring 3s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+  pointer-events: none;
 }
