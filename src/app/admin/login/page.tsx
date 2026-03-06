@@ -34,6 +34,9 @@ export default function LoginPage() {
                         Lab <span className="text-teal-400">Access</span>
                     </h1>
                     <p className="text-slate-500 text-xs mt-2 tracking-widest uppercase">Restricted Zone</p>
+                <a href="/" className="text-slate-600 hover:text-teal-400 text-[10px] tracking-widest uppercase transition-colors mt-3 inline-block">
+                    ← Back to Koivu Labs
+                </a>
                 </div>
 
                 <form onSubmit={handleLogin} className="tree-glass p-8 space-y-6">
