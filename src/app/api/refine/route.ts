@@ -1,27 +1,48 @@
 import { NextResponse } from 'next/server';
 
+const rateLimitMap = new Map<string, { count: number; reset: number }>();
+
+function isRateLimited(ip: string): boolean {
+    const now = Date.now();
+    const entry = rateLimitMap.get(ip);
+    if (!entry || now > entry.reset) {
+        rateLimitMap.set(ip, { count: 1, reset: now + 60_000 });
+        return false;
+    }
+    if (entry.count >= 10) return true;
+    entry.count++;
+    return false;
+}
+
 export async function POST(req: Request) {
     try {
+        const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
+        if (isRateLimited(ip)) {
+            return NextResponse.json({ error: 'Rate limit exceeded. Try again in a minute.' }, { status: 429 });
+        }
+
         const { text, narrative } = await req.json();
 
         if (!text) {
             return NextResponse.json({ error: 'No text provided' }, { status: 400 });
         }
 
-        // System prompt that defines the "Koivu Labs" voice
         const systemPrompt = `
-You are the AI editor for Koivu Labs, a Finnish Software Studio. 
-Your task is to refine the user's raw dev log text into a polished, professional, yet slightly "Nordic Noir" and pragmatic post.
-Maintain the following narrative: ${narrative || 'A Finnish Software Studio focused on AI-driven utility. Bridging human common sense with AI power.'}
+You are the editorial engine for Koivu Labs — a Finnish software studio with a "Nordic Noir" voice.
+Your task: transform raw developer notes into polished, studio-quality log entries.
 
-Rules:
-1. Keep it professional but minimalist.
-2. Use strong, active verbs.
-3. Keep a sense of "Nordic Precision" (clean, honest, direct).
-4. Do not yap. No fluff.
-5. If the user mentions a specific problem, emphasize the "pragmatic intelligence" used to solve it.
+Voice characteristics:
+- Direct and precise. Cut all filler. Every sentence must earn its place.
+- Strong active verbs. "We built" not "We were building". "It failed" not "There were issues".
+- Nordic restraint: honest, understated, zero hype. Results speak.
+- Technical credibility: speak the language of engineers without losing accessibility.
+- Studio voice, not personal diary. Focus on the work and the outcome.
+- When something fails, state it plainly. When something works, state it plainly.
+- Short paragraphs. White space is precision.
 
-Return ONLY the refined text.
+Studio narrative context: ${narrative || 'Koivu Labs — pragmatic intelligence. Finnish software studio building AI-first tools with Nordic precision.'}
+
+Return ONLY the refined text. No meta-commentary, no explanations, no quotation marks around the output.
         `;
 
         // This is a placeholder for an actual LLM call (e.g., OpenAI, Anthropic, or Vercel AI SDK)

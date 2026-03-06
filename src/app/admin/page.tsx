@@ -144,7 +144,11 @@ export default function AdminPage() {
                             {activeTab === 'projects' ? 'NEW MISSION +' : 'NEW LOG ENTRY +'}
                         </button>
                         <button
-                            onClick={() => signOut(auth).then(() => router.push('/'))}
+                            onClick={async () => {
+                                    await signOut(auth);
+                                    await fetch('/api/auth/session', { method: 'DELETE' });
+                                    router.push('/');
+                                }}
                             className="px-4 py-3 bg-slate-900 border border-slate-800 text-slate-500 text-xs font-black rounded-xl hover:text-red-400 hover:border-red-500/30 transition-all"
                         >
                             EXIT

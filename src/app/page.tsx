@@ -36,6 +36,23 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Stats Bar */}
+      <section className="relative z-20 px-6 md:px-12 lg:px-24 pb-12">
+        <div className="max-w-7xl mx-auto border-y border-slate-800/50 py-6 flex flex-wrap gap-8 md:gap-16">
+          {[
+            { value: '7', label: 'Active Projects' },
+            { value: 'Est. 2026', label: 'Founded' },
+            { value: 'Saarijärvi', label: 'Finland' },
+            { value: 'AI-First', label: 'Methodology' },
+          ].map(stat => (
+            <div key={stat.label}>
+              <div className="text-teal-400 font-black text-lg">{stat.value}</div>
+              <div className="text-slate-600 text-[10px] font-bold tracking-widest uppercase">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Interactive Tech-Tree v1.4 */}
       <section id="lab" className="relative z-10 px-6 pb-20 md:pb-32">
         <div className="max-w-7xl mx-auto">
@@ -55,11 +72,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* What We Build */}
+      <section className="relative z-10 px-6 py-20 md:py-32 md:px-12 lg:px-24 border-t border-slate-800/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16">
+            <h2 className="text-sm font-bold tracking-[0.5em] text-slate-500 uppercase mb-2">Studio Services</h2>
+            <p className="text-2xl text-slate-100 font-light italic">Three modes of <span className="text-teal-400">operation</span></p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { n: '01', title: 'Build', desc: 'AI-first web applications and digital tools. We ship fast, we ship right.' },
+              { n: '02', title: 'Consult', desc: 'Digital strategy and AI integration. Concrete recommendations, no hype.' },
+              { n: '03', title: 'Experiment', desc: 'Applied research and rapid prototyping. Fail cheaply, learn quickly.' },
+            ].map(s => (
+              <div key={s.n} className="tree-glass p-8 group hover:border-teal-500/30 transition-all duration-500">
+                <span className="text-teal-400/20 font-black text-3xl block mb-4">{s.n}</span>
+                <h3 className="text-xl font-bold italic text-slate-100 group-hover:text-teal-400 transition-colors mb-3">{s.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-right">
+            <a href="/services" className="text-teal-400 text-xs font-bold tracking-widest uppercase hover:underline">
+              Full Services Overview →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="relative z-10 py-12 px-6 border-t border-slate-800/50 text-center">
         <div className="flex justify-center gap-6 mb-4 text-slate-500 text-xs font-bold tracking-widest uppercase">
           <a href="/about" className="hover:text-teal-400 transition-colors">Manifesto</a>
           <a href="/registry" className="hover:text-teal-400 transition-colors">The Registry</a>
+          <a href="/services" className="hover:text-teal-400 transition-colors">Services</a>
+          <a href="/privacy" className="hover:text-teal-400 transition-colors">Privacy</a>
           <a href="/admin/login" className="hover:text-teal-400 transition-colors">Lab Access</a>
         </div>
         <p className="text-slate-600 text-[10px] tracking-tight">

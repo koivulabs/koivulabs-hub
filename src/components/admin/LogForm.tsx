@@ -19,6 +19,7 @@ const LogForm: React.FC<LogFormProps> = ({ initialLog, onSubmit, onCancel }) => 
         publishedAt: null
     });
     const [isRefining, setIsRefining] = useState(false);
+    const [narrative, setNarrative] = useState("Koivu Labs studio voice. Nordic precision, AI-first mindset. Results-focused. Honest about challenges, direct about solutions. No hype, no filler. The lab builds things that work.");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -34,7 +35,7 @@ const LogForm: React.FC<LogFormProps> = ({ initialLog, onSubmit, onCancel }) => 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     text: log.content,
-                    narrative: "Nordic Noir, Pragmatic Intelligence, Finnish Software Studio precision."
+                    narrative
                 })
             });
             const data = await res.json();
@@ -90,6 +91,16 @@ const LogForm: React.FC<LogFormProps> = ({ initialLog, onSubmit, onCancel }) => 
                     onChange={handleChange}
                     className="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm focus:border-teal-500 outline-none transition-colors"
                     required
+                />
+            </div>
+
+            <div>
+                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">AI Narrative Voice</label>
+                <textarea
+                    value={narrative}
+                    onChange={e => setNarrative(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-xs focus:border-teal-500 outline-none transition-colors h-20 resize-none text-slate-400"
+                    placeholder="Describe the voice and style for AI refinement..."
                 />
             </div>
 

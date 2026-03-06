@@ -44,7 +44,7 @@ export default function LogbookPage() {
                     </p>
                 </header>
 
-                <div className="space-y-32">
+                <div className="space-y-16">
                     {logs.length === 0 ? (
                         <div className="tree-glass p-12 text-center text-slate-500 italic">
                             The logbook is currently empty. Missions in progress.
@@ -66,20 +66,25 @@ export default function LogbookPage() {
                                     <time className="text-teal-500/50 text-[10px] font-black tracking-widest uppercase">
                                         {new Date(log.publishedAt?.seconds * 1000).toLocaleDateString('fi-FI')}
                                     </time>
-                                    <h2 className="text-3xl md:text-4xl font-bold text-slate-100 group-hover:text-teal-400 transition-colors">
-                                        {log.title}
-                                    </h2>
-                                    <div className="prose prose-invert max-w-none text-slate-400 leading-relaxed text-lg">
-                                        {log.content.split('\n').map((para, i) => (
-                                            <p key={i} className="mb-4">{para}</p>
-                                        ))}
-                                    </div>
-                                    <div className="flex gap-2 mt-4">
-                                        {log.tags?.map(tag => (
-                                            <span key={tag} className="text-[10px] px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-500 font-bold uppercase">
-                                                #{tag}
-                                            </span>
-                                        ))}
+                                    <Link href={`/logbook/${log.id}`}>
+                                        <h2 className="text-3xl md:text-4xl font-bold text-slate-100 group-hover:text-teal-400 transition-colors cursor-pointer">
+                                            {log.title}
+                                        </h2>
+                                    </Link>
+                                    <p className="text-slate-400 leading-relaxed text-lg line-clamp-3">
+                                        {log.content.split('\n').find(p => p.trim()) ?? ''}
+                                    </p>
+                                    <div className="flex items-center justify-between mt-2">
+                                        <div className="flex gap-2 flex-wrap">
+                                            {log.tags?.map(tag => (
+                                                <span key={tag} className="text-[10px] px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-500 font-bold uppercase">
+                                                    #{tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <Link href={`/logbook/${log.id}`} className="text-teal-400 text-xs font-bold tracking-widest uppercase hover:underline shrink-0 ml-4">
+                                            Read Entry →
+                                        </Link>
                                     </div>
                                 </div>
                             </motion.article>

@@ -2,6 +2,7 @@ import { db } from "./firebase";
 import {
     collection,
     getDocs,
+    getDoc,
     doc,
     setDoc,
     updateDoc,
@@ -35,6 +36,11 @@ export const logService = {
             ...log,
             publishedAt: log.publishedAt || Timestamp.now()
         });
+    },
+
+    async getLog(logId: string): Promise<DevLog | null> {
+        const docSnap = await getDoc(doc(db, LOGS_COLLECTION, logId));
+        return docSnap.exists() ? docSnap.data() as DevLog : null;
     },
 
     async deleteLog(logId: string): Promise<void> {
