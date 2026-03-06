@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Koivu Labs Hub v1.5 - "Strategic Ecosystem"
 
-## Getting Started
+> **Pragmatic Intelligence.** Bridging human common sense with AI power.
 
-First, run the development server:
+The Koivu Labs Hub is a sophisticated technical portfolio and studio dashboard, designed with a **Nordic Noir** aesthetic. It centralizes the mission-critical outputs of Koivu Labs into an interactive, visual "Tech-Tree."
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌲 The Birch Tech-Tree
+The central interface ([/](https://koivulabs.com)) features an interactive mapping of strategic project nodes.
+- **Visual Affordance**: Breathing pulse animations signal interactivity.
+- **Identity**: Project-specific glyphs (B, V, H...) for instant recognition.
+- **Mission Context**: Directly links to standardized product pages and external instances.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📂 Strategic Sections
+- **[/logbook](https://koivulabs.com/logbook)**: Founder's journey and AI transition logs.
+- **[/registry](https://koivulabs.com/registry)**: Complete archive of all lab outputs and experimental missions.
+- **[/about](https://koivulabs.com/about)**: Studio manifesto and "Pragmatic Intelligence" philosophy.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 Tech Stack
+- **Framework**: Next.js 15.5.12 (App Router)
+- **Runtime**: Node.js 20+
+- **Styling**: Tailwind CSS 4.0 (Nordic Noir Theme)
+- **Animation**: Framer Motion & CSS Keyframes
+- **Deployment**: Vercel (Production Secure)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛡 Security & Compliance
+- **Vulnerability Free**: Patched for CVE-2025-66478.
+- **Zero-Trust UI**: Sanitized inputs and strictly defined SSG routes.
 
-## Learn More
+## 🇫🇮 Context
+Built with Nordic precision in Saarijärvi, Finland. 
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+&copy; 2026 KOIVU LABS.
