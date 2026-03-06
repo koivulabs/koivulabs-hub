@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { logService, DevLog } from '@/lib/logService';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import ShareButtons from '@/components/ShareButtons';
+import ScrollProgress from '@/components/ScrollProgress';
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -37,8 +39,12 @@ export default function LogEntryPage({ params }: Props) {
 
     if (missing || !log) return notFound();
 
+    const slug = (await params).slug;
+    const pageUrl = `https://koivulabs.com/logbook/${slug}`;
+
     return (
         <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24">
+            <ScrollProgress />
             <div className="max-w-3xl mx-auto">
                 <Link href="/logbook" className="text-teal-500 text-xs font-bold tracking-widest uppercase hover:underline mb-12 inline-block">
                     ← Back to Logbook
@@ -68,11 +74,14 @@ export default function LogEntryPage({ params }: Props) {
                     </div>
                 </article>
 
-                <footer className="mt-24 pt-8 border-t border-slate-800/50 flex justify-between items-center">
-                    <Link href="/logbook" className="text-slate-500 hover:text-teal-400 text-xs font-bold tracking-widest uppercase transition-colors">
-                        ← All Entries
-                    </Link>
-                    <span className="text-[10px] text-slate-700 font-bold tracking-widest uppercase">Koivu Labs</span>
+                <footer className="mt-24 pt-8 border-t border-slate-800/50 space-y-6">
+                    <ShareButtons title={log.title} url={pageUrl} />
+                    <div className="flex justify-between items-center">
+                        <Link href="/logbook" className="text-slate-500 hover:text-teal-400 text-xs font-bold tracking-widest uppercase transition-colors">
+                            ← All Entries
+                        </Link>
+                        <span className="text-[10px] text-slate-700 font-bold tracking-widest uppercase">Koivu Labs</span>
+                    </div>
                 </footer>
             </div>
         </main>

@@ -19,7 +19,7 @@ const LogForm: React.FC<LogFormProps> = ({ initialLog, onSubmit, onCancel }) => 
         publishedAt: null
     });
     const [isRefining, setIsRefining] = useState(false);
-    const [narrative, setNarrative] = useState("Koivu Labs studio voice. Nordic precision, AI-first mindset. Results-focused. Honest about challenges, direct about solutions. No hype, no filler. The lab builds things that work.");
+    const [narrative, setNarrative] = useState("Koivu Labs — maalaisjärki kohtaa tekoälyn. Career changer, started from zero in early 2026. Honest about the learning curve. Small steps, real progress. Northern Central Finland. Quiet forest energy, steady work ethic.");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;

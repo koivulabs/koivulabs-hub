@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import CopyEmail from '@/components/CopyEmail';
 
 export const metadata: Metadata = {
     title: 'Manifesto | Koivu Labs',
@@ -65,9 +66,7 @@ export default function AboutPage() {
                         <div className="p-8 bg-slate-900 border border-slate-800 rounded-3xl">
                             <h3 className="text-teal-400 text-xs font-bold tracking-[0.2em] uppercase mb-6">Contact Studio</h3>
                             <div className="space-y-4">
-                                <a href="mailto:hello@koivulabs.com" className="block text-2xl font-bold text-slate-100 hover:text-teal-400 transition-colors">
-                                    hello@koivulabs.com
-                                </a>
+                                <CopyEmail email="hello@koivulabs.com" className="block text-2xl font-bold text-slate-100 hover:text-teal-400 cursor-copy" />
                                 <p className="text-sm text-slate-500">
                                     Saarijärvi, Finland <br />
                                     Global Deployment Hub
@@ -77,7 +76,26 @@ export default function AboutPage() {
                     </section>
                 </div>
 
-                <div className="mt-32 text-center">
+                {/* Journey Timeline */}
+                <div className="mt-20 space-y-6">
+                    <h2 className="text-2xl font-bold text-slate-100 italic">The Timeline</h2>
+                    <div className="relative pl-8 border-l border-slate-800">
+                        {[
+                            { date: 'Jan 2026', text: 'Zero code knowledge. First "Hello World". Decision made: build or stay behind.' },
+                            { date: 'Feb 2026', text: 'First Firebase project. State, components, data flow. Things starting to click.' },
+                            { date: 'Mar 2026', text: 'Koivu Labs born. First deployment goes live. Learning in public begins.' },
+                            { date: 'Now', text: 'Shipping features weekly. 7 projects in development. Still learning. Won\'t stop.' },
+                        ].map((item, i) => (
+                            <div key={i} className="mb-10 relative">
+                                <div className="absolute -left-[41px] w-3 h-3 rounded-full bg-teal-500 border-2 border-slate-950 shadow-[0_0_8px_rgba(45,212,191,0.4)]" />
+                                <div className="text-[10px] text-teal-400/60 font-black tracking-widest uppercase mb-1">{item.date}</div>
+                                <p className="text-slate-400 leading-relaxed">{item.text}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="mt-20 text-center">
                     <p className="text-[10px] text-slate-600 font-bold tracking-widest uppercase">
                         EST. 2026 / KOIVU LABS HUB
                     </p>

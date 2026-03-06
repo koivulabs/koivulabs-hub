@@ -24,9 +24,19 @@ export default function LogbookPage() {
     }, []);
 
     if (loading) return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-            <div className="text-teal-500 animate-pulse font-black italic text-2xl">OPENING LOGS...</div>
-        </div>
+        <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24">
+            <div className="max-w-3xl mx-auto space-y-16">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="animate-pulse space-y-4">
+                        <div className="h-3 w-24 bg-slate-800 rounded" />
+                        <div className="h-8 w-3/4 bg-slate-800 rounded" />
+                        <div className="h-4 w-full bg-slate-800 rounded" />
+                        <div className="h-4 w-5/6 bg-slate-800 rounded" />
+                        <div className="h-4 w-2/3 bg-slate-800 rounded" />
+                    </div>
+                ))}
+            </div>
+        </main>
     );
 
     return (

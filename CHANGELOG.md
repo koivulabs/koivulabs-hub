@@ -4,6 +4,32 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.9.0] — 2026-03-06
+
+### Added
+- **OG image** — Auto-generated branded Open Graph image via Next.js ImageResponse. Shown when links are shared on X, LinkedIn, Slack etc.
+- **Favicon** — Custom branded "K" favicon in teal, generated via Next.js edge runtime.
+- **Page transitions** — Subtle fade+slide animation between all pages via `template.tsx`.
+- **PWA manifest** — `manifest.ts` makes the site installable to mobile home screen.
+- **ScrollProgress** — Thin teal progress bar at the top of the page, visible on all pages.
+- **BackToTop** — Floating button appears after scrolling 500px. Smooth scroll back to top.
+- **ShareButtons** — X/Twitter, LinkedIn, Copy Link on individual logbook post pages.
+- **CopyEmail** — Click-to-copy email address on About page. Shows "✓ Copied!" feedback.
+- **HeroTyping** — Typewriter animation for the tagline on the homepage hero.
+- **TechBadge** — Color-coded technology badges per tech on project detail pages. Each technology has its own brand color accent.
+- **`/now` page** — Living snapshot: what's being built, learned, and where. Classic indie dev tradition.
+- **Journey Timeline** — Visual timeline on About page showing the studio's progress from Jan 2026 to now.
+- **Skeleton loading** — Logbook list shows animated skeleton cards while Firebase fetches data.
+- **`prefers-reduced-motion`** — All animations respect OS accessibility setting.
+- **Print stylesheet** — Blog posts print cleanly without navigation chrome.
+
+### Changed
+- **Navbar** — Added `/now` link.
+- **Footer** — Added `/now` link.
+- **Sitemap** — Added `/now` and `/privacy` routes.
+
+---
+
 ## [1.8.0] — 2026-03-06
 
 ### Added

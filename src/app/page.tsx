@@ -1,4 +1,6 @@
 import InteractiveProjectTree from '@/components/InteractiveProjectTree';
+import HeroTyping from '@/components/HeroTyping';
+import CopyEmail from '@/components/CopyEmail';
 
 export default function Home() {
   return (
@@ -15,9 +17,7 @@ export default function Home() {
             Koivu <span className="text-teal-400">Labs</span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-slate-400 max-w-2xl leading-relaxed mb-8">
-            Pragmatic Intelligence. Bridging human common sense with AI power.
-          </p>
+          <HeroTyping />
 
           <div className="flex flex-wrap gap-4">
             <a
@@ -106,6 +106,7 @@ export default function Home() {
           <a href="/about" className="hover:text-teal-400 transition-colors">Manifesto</a>
           <a href="/registry" className="hover:text-teal-400 transition-colors">The Registry</a>
           <a href="/services" className="hover:text-teal-400 transition-colors">Services</a>
+          <a href="/now" className="hover:text-teal-400 transition-colors">Now</a>
           <a href="/privacy" className="hover:text-teal-400 transition-colors">Privacy</a>
           <a href="/admin/login" className="hover:text-teal-400 transition-colors">Lab Access</a>
         </div>

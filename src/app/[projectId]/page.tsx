@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { projects } from '@/constants/projects';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import TechBadge from '@/components/TechBadge';
 
 interface ProductPageProps {
     params: Promise<{ projectId: string }>;
@@ -95,10 +96,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             <h3 className="text-teal-400 text-xs font-bold tracking-widest uppercase mb-4">Tech Stack</h3>
                             <div className="flex flex-wrap gap-2">
                                 {project.techStack.map((tech, i) => (
-                                    <span key={i} className="px-3 py-1 bg-slate-800/50 text-slate-400 text-xs rounded-full border border-slate-700/50">
-                                        {tech}
-                                    </span>
-                                ))}
+                                    <TechBadge key={i} tech={tech} />
                             </div>
                         </div>
                     </div>
