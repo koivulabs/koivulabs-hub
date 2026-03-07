@@ -54,6 +54,7 @@ export default function LoginPage() {
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
+                            autoComplete="email"
                             required
                             className="w-full bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition-colors"
                             placeholder="admin@koivulabs.com"
@@ -67,6 +68,7 @@ export default function LoginPage() {
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
+                            autoComplete="current-password"
                             required
                             className="w-full bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-teal-500 transition-colors"
                             placeholder="••••••••"
