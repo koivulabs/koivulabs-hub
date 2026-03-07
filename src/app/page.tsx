@@ -117,10 +117,7 @@ export default function Home() {
           </a>
         </div>
         <div className="flex justify-center gap-6 mb-4 text-slate-500 text-xs font-bold tracking-widest uppercase">
-          <a href="/about" className="hover:text-teal-400 transition-colors">Manifesto</a>
           <a href="/registry" className="hover:text-teal-400 transition-colors">The Registry</a>
-          <a href="/services" className="hover:text-teal-400 transition-colors">Services</a>
-          <a href="/now" className="hover:text-teal-400 transition-colors">Now</a>
           <a href="/privacy" className="hover:text-teal-400 transition-colors">Privacy</a>
           <a href="/admin/login" className="hover:text-teal-400 transition-colors">Lab Access</a>
         </div>
