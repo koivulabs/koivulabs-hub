@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { transcribeVoice } from '@/lib/transcribeVoice';
 import { refineToLogbookPost } from '@/lib/koivuVoice';
 import { commitToGitHub } from '@/lib/githubCommit';
+import { saveLogToFirestore } from '@/lib/firestoreRest';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN ?? '';
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET ?? '';
@@ -89,9 +90,12 @@ export async function POST(req: NextRequest) {
         await sendMessage(chatId, '✍️ Refining with AI...');
         const post = await refineToLogbookPost(rawText);
 
-        // 5. Commit to GitHub
-        await sendMessage(chatId, '📦 Committing to GitHub...');
-        const { url, path } = await commitToGitHub(post);
+        // 5. Commit to GitHub + save to Firestore in parallel
+        await sendMessage(chatId, '📦 Publishing...');
+        const [{ url, path }] = await Promise.all([
+            commitToGitHub(post),
+            saveLogToFirestore(post),
+        ]);
 
         // 6. Success
         await sendMessage(
@@ -100,7 +104,8 @@ export async function POST(req: NextRequest) {
             `📅 ${post.date}\n` +
             `🏷 ${post.tags.join(', ')}\n\n` +
             `📁 \`${path}\`\n\n` +
-            `[View on GitHub](${url})`
+            `[View on GitHub](${url})\n` +
+            `[View on Logbook](https://koivulabs.com/logbook/${post.slug})`
         );
 
     } catch (err) {
