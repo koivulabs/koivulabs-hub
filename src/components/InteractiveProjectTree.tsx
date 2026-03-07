@@ -143,7 +143,7 @@ const InteractiveProjectTree: React.FC = () => {
             {/* Legend / Tip */}
             <div className="absolute bottom-4 left-6 z-10 pointer-events-none">
                 <p className="text-[10px] text-slate-500 font-bold tracking-[0.3em] uppercase opacity-50 group-hover:opacity-100 transition-opacity">
-                    Interactive Ecosystem v1.5
+                    Interactive Ecosystem v1.6
                 </p>
             </div>
         </div>

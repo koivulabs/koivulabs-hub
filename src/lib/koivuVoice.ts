@@ -72,6 +72,13 @@ export async function refineToLogbookPost(rawText: string): Promise<LogbookPost>
     const data = await res.json();
     const post = JSON.parse(data.choices[0].message.content) as LogbookPost;
     post.date = new Date().toISOString().split('T')[0];
+    // Sanitize slug: lowercase, spaces → hyphens, strip non-url chars
+    post.slug = post.slug
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-');
     return post;
 }
 

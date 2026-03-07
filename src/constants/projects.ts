@@ -5,7 +5,7 @@ export interface Project {
     longDescription: string;
     url: string;
     logoUrl: string;
-    category: 'Productivity' | 'Finance' | 'Social' | 'Utility' | 'OS';
+    category: 'Productivity' | 'Finance' | 'Social' | 'Utility' | 'OS' | 'Infrastructure';
     status: 'Flagship' | 'Active Lab' | 'Experimental' | 'Legacy';
     features: string[];
     techStack: string[];
@@ -118,5 +118,20 @@ export const projects: Project[] = [
         vision: 'Redefining development at the speed of thought.',
         currentMission: 'Exploring late-stage code generation with deep context injection.',
         treePosition: { x: 62, y: 72 }
+    },
+    {
+        id: 'koivu-voice',
+        name: 'Koivu Voice',
+        description: 'Voice-to-logbook pipeline. Speak a thought, it ships as a published post.',
+        longDescription: 'Koivu Voice is the studio\'s internal publishing nervous system. A Telegram bot listens for voice memos or text, routes them through OpenAI Whisper for transcription, refines the raw thought into a structured logbook entry with GPT-4o, then commits the markdown file to GitHub and writes to Firestore simultaneously. The entire chain from thought to live post runs in seconds with no manual steps.',
+        url: '#',
+        logoUrl: '/logos/koivu-voice.png',
+        category: 'Infrastructure',
+        status: 'Active Lab',
+        features: ['Telegram Bot Interface', 'Whisper Voice Transcription', 'GPT-4o AI Refinement', 'Auto-publish to GitHub + Firestore'],
+        techStack: ['Telegram Bot API', 'OpenAI Whisper', 'GPT-4o', 'Next.js', 'Firestore REST API'],
+        vision: 'Zero friction from raw thought to published post.',
+        currentMission: 'Field testing voice-to-logbook pipeline in daily studio use.',
+        treePosition: { x: 84, y: 62 }
     }
 ];
