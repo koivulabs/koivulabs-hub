@@ -133,5 +133,20 @@ export const projects: Project[] = [
         vision: 'Zero friction from raw thought to published post.',
         currentMission: 'Field testing voice-to-logbook pipeline in daily studio use.',
         treePosition: { x: 84, y: 62 }
+    },
+    {
+        id: 'skillboost-suomi',
+        name: 'SkillBoost Suomi',
+        description: 'Free education recommendation tool for job seekers and career switchers in Finland.',
+        longDescription: 'SkillBoost Suomi fetches real-time course data from Opintopolku.fi\'s open API and scores them based on the user\'s profile using a BM25-based algorithm. It provides personalized recommendations, labor market statistics, and an educational path map to assist in career planning.',
+        url: 'https://skillboost-finland.vercel.app',
+        logoUrl: '/logos/skillboost.png',
+        category: 'Utility',
+        status: 'Active Lab',
+        features: ['Real-time Course Recommendations', 'Opintopolku API Integration', 'Statistics Finland Data Visualization', 'Personalized Career Action Plan (PDF)'],
+        techStack: ['React', 'TypeScript', 'Firebase', 'Tailwind CSS', 'Recharts'],
+        vision: 'Bridging the gap between education and employment through intelligent guidance.',
+        currentMission: 'Expanding API coverage and refining the recommendation scoring model.',
+        treePosition: { x: 18, y: 38 }
     }
 ];
