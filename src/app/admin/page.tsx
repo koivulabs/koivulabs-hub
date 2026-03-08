@@ -128,13 +128,14 @@ export default function AdminPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        {activeTab === 'projects' && projects.length === 0 && (
+                        {activeTab === 'projects' && (
                             <button
                                 onClick={handleSeedProjects}
                                 disabled={seeding}
-                                className="px-4 py-3 bg-slate-800 border border-slate-700 text-slate-300 text-xs font-black rounded-xl hover:bg-slate-700 transition-all disabled:opacity-50"
+                                title="Sync static project config to Firestore"
+                                className="px-4 py-3 bg-slate-900 border border-slate-800 text-slate-400 text-[10px] font-black tracking-widest uppercase rounded-xl hover:text-teal-400 hover:border-teal-400/30 transition-all disabled:opacity-50"
                             >
-                                {seeding ? 'SEEDING...' : 'SEED FROM STATIC ↓'}
+                                {seeding ? 'SYNCING...' : 'SYNC FROM CODE ↓'}
                             </button>
                         )}
                         <button
@@ -145,10 +146,10 @@ export default function AdminPage() {
                         </button>
                         <button
                             onClick={async () => {
-                                    await signOut(auth);
-                                    await fetch('/api/auth/session', { method: 'DELETE' });
-                                    router.push('/');
-                                }}
+                                await signOut(auth);
+                                await fetch('/api/auth/session', { method: 'DELETE' });
+                                router.push('/');
+                            }}
                             className="px-4 py-3 bg-slate-900 border border-slate-800 text-slate-500 text-xs font-black rounded-xl hover:text-red-400 hover:border-red-500/30 transition-all"
                         >
                             EXIT
