@@ -33,14 +33,17 @@ export default function AboutPage() {
                     <section className="space-y-8">
                         <h2 className="text-2xl font-bold text-slate-100 italic">Strategic Context</h2>
                         <p className="text-lg text-slate-400 leading-relaxed max-w-2xl">
-                            Koivu Labs isn't just a development studio; it's a pragmatic laboratory. We explore the intersection of human common sense and AI capability. Our goal is to build tools that actually work—tools that solve real problems with minimal friction and maximum speed.
+                            Koivu Labs isn't just a development studio — it's a pragmatic laboratory. We work at the intersection of human common sense and AI capability. Our goal is to build tools that actually work: solving real problems with minimal friction and maximum execution speed.
+                        </p>
+                        <p className="text-lg text-slate-400 leading-relaxed max-w-2xl">
+                            We don't overcomplicate. We don't over-engineer. We ship, measure, and improve.
                         </p>
                     </section>
 
                     <section className="p-12 tree-glass border-teal-500/20 nordic-glow">
-                        <h2 className="text-2xl font-bold text-teal-400 mb-6 italic">Founder's Journey</h2>
+                        <h2 className="text-2xl font-bold text-teal-400 mb-6 italic">Founder's Note</h2>
                         <p className="text-lg text-slate-200 leading-relaxed italic">
-                            "In January 2026, I didn't know what Firebase was. I started experimenting with AI tools as an 'old man' trying to keep up. I found that with the right intent and pragmatic tools, we can move faster than ever imagined. Koivu Labs is the result of that experimentation."
+                            "In early 2026, I made a deliberate decision: build AI-native from day one. No legacy thinking, no old habits carried over from how software used to be built. Just a clear thesis — AI has fundamentally changed what a small, focused studio can deliver — and the discipline to follow it through. Koivu Labs is that experiment. It's still accelerating."
                         </p>
                     </section>
 
@@ -50,7 +53,7 @@ export default function AboutPage() {
                             <ul className="space-y-4">
                                 <li className="flex gap-4">
                                     <span className="text-teal-400 font-bold">01</span>
-                                    <p className="text-slate-400">Pragmatism over perfection. If it works, it's right.</p>
+                                    <p className="text-slate-400">Pragmatism over perfection. If it works and ships, it's right.</p>
                                 </li>
                                 <li className="flex gap-4">
                                     <span className="text-teal-400 font-bold">02</span>
@@ -58,7 +61,11 @@ export default function AboutPage() {
                                 </li>
                                 <li className="flex gap-4">
                                     <span className="text-teal-400 font-bold">03</span>
-                                    <p className="text-slate-400">AI-First lifecycle. Leveraging intelligence at every layer.</p>
+                                    <p className="text-slate-400">AI-First by design. Intelligence at every layer, not as an afterthought.</p>
+                                </li>
+                                <li className="flex gap-4">
+                                    <span className="text-teal-400 font-bold">04</span>
+                                    <p className="text-slate-400">Small surface, deep focus. We pick the right problem and go all in.</p>
                                 </li>
                             </ul>
                         </div>
@@ -81,10 +88,10 @@ export default function AboutPage() {
                     <h2 className="text-2xl font-bold text-slate-100 italic">The Timeline</h2>
                     <div className="relative pl-8 border-l border-slate-800">
                         {[
-                            { date: 'Jan 2026', text: 'Zero code knowledge. First "Hello World". Decision made: build or stay behind.' },
-                            { date: 'Feb 2026', text: 'First Firebase project. State, components, data flow. Things starting to click.' },
-                            { date: 'Mar 2026', text: 'Koivu Labs born. First deployment goes live. Learning in public begins.' },
-                            { date: 'Now', text: 'Shipping features weekly. 7 projects in development. Still learning. Won\'t stop.' },
+                            { date: 'Jan 2026', text: 'Clear decision: build AI-native from the ground up. Thesis defined, stack chosen, work begins.' },
+                            { date: 'Feb 2026', text: 'First full-stack projects ship. Firebase, Next.js, real deployments. The tempo is set.' },
+                            { date: 'Mar 2026', text: 'Koivu Labs founded. KoivuChat MVP live in production. First paying clients in pipeline.' },
+                            { date: 'Now', text: 'Shipping features weekly. Multiple products in active development. The lab doesn\'t sleep.' },
                         ].map((item, i) => (
                             <div key={i} className="mb-10 relative">
                                 <div className="absolute -left-[41px] w-3 h-3 rounded-full bg-teal-500 border-2 border-slate-950 shadow-[0_0_8px_rgba(45,212,191,0.4)]" />
