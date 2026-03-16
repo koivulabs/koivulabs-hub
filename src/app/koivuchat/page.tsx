@@ -81,22 +81,29 @@ const steps = [
   },
 ]
 
-const plans = [
+interface Plan {
+  name: string; nameEn: string; price: string; priceAnnual: string
+  setup: string; description: string; features: string[]; note: string; cta: string; highlight: boolean
+}
+
+const plans: Plan[] = [
   {
     name: 'Startti',
     nameEn: 'Starter',
     price: '49',
     priceAnnual: '39',
     setup: '499',
-    description: 'Täydellinen aloitukseen. Yksi botti, perusbrändäys, asiakaspalvelua 200 viestiin asti kuukaudessa.',
+    description: 'Täydellinen aloitukseen. Sopii yritykselle jolla on kohtuullinen kävijämäärä — esim. ravintola, kampaamo tai paikallinen palveluyritys.',
     features: [
-      '200 viestiä / kk',
+      '200 asiakkasviestiä / kk',
+      '→ noin 6–7 keskustelua päivässä',
       '1 chatbotti',
       '3 tietolähdettä (URL tai PDF)',
       'Perusbrändäys (väri, nimi)',
       'Demo-linkki',
       'Email-tuki',
     ],
+    note: 'Kiintiön täytyttyä botti ohjaa asiakkaan ottamaan yhteyttä suoraan. Kiintiötä voi korottaa tai päivittää pakettia milloin tahansa.',
     cta: 'Aloita Starttilla',
     highlight: false,
   },
@@ -106,9 +113,10 @@ const plans = [
     price: '99',
     priceAnnual: '79',
     setup: '799',
-    description: 'Kasvavalle yritykselle. Täysi brändäys, rajattomat tietolähteet ja oma OpenAI-avain.',
+    description: 'Aktiiviselle yritykselle. Sopii verkkokaupalle, kiinteistönvälittäjälle tai yritykselle jolla on jatkuva asiakasvirta.',
     features: [
-      '1 500 viestiä / kk',
+      '1 500 asiakkasviestiä / kk',
+      '→ noin 50 keskustelua päivässä',
       '1 chatbotti',
       'Rajattomat tietolähteet',
       'Täysi brändäys (avatar, pikavalinnat)',
@@ -116,6 +124,7 @@ const plans = [
       'Oma OpenAI API-avain',
       'Prioriteettituki',
     ],
+    note: 'Oma OpenAI-avain poistaa käytännössä viestirajoitteen — viesteistä veloitetaan silloin suoraan OpenAI:lta (noin 0,001–0,005€ / viesti).',
     cta: 'Aloita Kasvulla',
     highlight: true,
   },
@@ -125,16 +134,18 @@ const plans = [
     price: '199',
     priceAnnual: '159',
     setup: '1 490',
-    description: 'Useammalle botille tai isommalle volyymille. White-label, SLA ja 3 erillistä bottia.',
+    description: 'Useammalle botille tai suurelle volyymille. Ketju, franchise tai useampi toimipiste yhdessä paketissa.',
     features: [
       'Rajattomat viestit',
+      '→ ei kuukausikiintiötä',
       '3 chatbottia',
       'Rajattomat tietolähteet',
       'White-label (ei KoivuLabs-brändäystä)',
       'Analytiikka & historia',
-      'Omat OpenAI-avaimet',
+      'Omat OpenAI-avaimet per botti',
       'SLA + dedikoitu tuki',
     ],
+    note: 'Jokaisella botilla on oma tietopohja, brändäys ja analytiikka — hallinta yhdestä paikasta.',
     cta: 'Aloita Prolla',
     highlight: false,
   },
@@ -347,6 +358,12 @@ export default function KoivuChatPage() {
                   ))}
                 </ul>
 
+                {plan.note && (
+                  <p className="text-[11px] text-slate-600 leading-relaxed mb-4 border-t border-slate-800 pt-4">
+                    {plan.note}
+                  </p>
+                )}
+
                 <a
                   href={`mailto:hello@koivulabs.com?subject=KoivuChat ${plan.name} — haluan aloittaa`}
                   className={`w-full text-center py-3 rounded-xl font-bold text-sm transition-all duration-200 ${
@@ -420,6 +437,14 @@ export default function KoivuChatPage() {
 
           <div className="space-y-4">
             {[
+              {
+                q: 'Mitä yksi "viesti" tarkoittaa?',
+                a: 'Yksi viesti = yksi asiakkaan lähettämä kysymys botille. Botin vastaus ei kuluta kiintiötä. Esimerkki: asiakas kirjoittaa "Milloin olette auki?" — se on yksi viesti. Pitkäkin keskustelu kuluttaa vain sen verran viestejä kuin asiakas on kirjoittanut. Kiintiön täytyttyä botti ilmoittaa kohteliaasti ja ohjaa ottamaan yhteyttä suoraan — asiakaskokemus ei katkea äkisti.',
+              },
+              {
+                q: 'Miten paljon 200 tai 1 500 viestiä käytännössä on?',
+                a: '200 viestiä / kk tarkoittaa noin 6–7 asiakaskysymystä päivässä — riittää hyvin pienelle yritykselle jonka sivustolla käy muutamia kävijöitä päivittäin. 1 500 viestiä / kk on noin 50 päivässä — sopii aktiiviselle verkkokaupalle tai palveluyritykselle. Omalla OpenAI-avaimella (Kasvu-paketti) viestimäärä on käytännössä rajaton, ja viesteistä veloitetaan suoraan OpenAI:lta murto-osalla senttiä per viesti.',
+              },
               {
                 q: 'Miten botti saa tietoa yrityksestäni?',
                 a: 'Lataat PDF-tiedostoja tai annat verkkosivujesi URL:it. KoivuChat lukee sisällön ja tallentaa sen EU-alueen vektoritietokantaan. Botti vastaa vain tähän tietoon pohjautuen — ei keksi eikä arvaile.',
