@@ -8,6 +8,7 @@ const links = [
     { href: '/#lab', label: 'Projects' },
     { href: '/logbook', label: 'Logbook' },
     { href: '/services', label: 'Services' },
+    { href: '/koivuchat', label: 'KoivuChat', highlight: true },
     { href: '/now', label: 'Now' },
     { href: '/about', label: 'About' },
 ];
@@ -39,7 +40,13 @@ const Navbar: React.FC = () => {
                         <Link
                             key={link.href}
                             href={link.href}
-                            className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-colors ${pathname === link.href ? 'text-teal-400' : 'text-slate-400 hover:text-slate-100'}`}
+                            className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-colors ${
+                                pathname === link.href
+                                    ? 'text-teal-400'
+                                    : link.highlight
+                                        ? 'text-teal-400/80 hover:text-teal-400 border border-teal-500/30 px-3 py-1.5 rounded-lg hover:bg-teal-500/10'
+                                        : 'text-slate-400 hover:text-slate-100'
+                            }`}
                         >
                             {link.label}
                         </Link>
