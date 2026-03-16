@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://koivulabs.com'),
   title: "Koivu Labs | Pragmatic Intelligence",
   description: "A Finnish Software Studio focused on AI-driven utility. Bridging human common sense with AI power.",
-  keywords: ["Koivu Labs", "AI", "Software Studio", "Finland", "Pragmatic Intelligence", "BrainBuffer", "Human Dashboard"],
+  keywords: ["Koivu Labs", "AI", "Software Studio", "Finland", "Pragmatic Intelligence", "KoivuChat", "AI chatbot", "chatbotti suomi", "BrainBuffer", "Human Dashboard"],
   authors: [{ name: "Koivu Labs" }],
   openGraph: {
     title: "Koivu Labs | Pragmatic Intelligence",
@@ -50,6 +50,16 @@ const jsonLd = {
     name: 'Saarijärvi, Finland',
   },
   sameAs: ['https://github.com/koivulabs'],
+  makesOffer: {
+    '@type': 'Offer',
+    itemOffered: {
+      '@type': 'SoftwareApplication',
+      name: 'KoivuChat',
+      url: 'https://koivulabs.com/koivuchat',
+      description: 'AI-chatbotti suomalaiselle yritykselle. Oppii yrityksesi tiedoista ja vastaa asiakkaidesi kysymyksiin ympäri vuorokauden.',
+      applicationCategory: 'BusinessApplication',
+    },
+  },
 };
 
 export default function RootLayout({

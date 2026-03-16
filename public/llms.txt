@@ -11,6 +11,33 @@ Koivu Labs is an independent software studio founded in 2026 in Saarijärvi, Fin
 - **Philosophy:** Pragmatic Intelligence — Nordic precision meets modern AI capability
 - **Contact:** hello@koivulabs.com
 
+## Products & Services
+
+### KoivuChat — AI Chatbot for Finnish Businesses
+
+KoivuChat is a fully managed AI customer service chatbot for Finnish SMEs. It learns from the client's own documents and website, and answers customer questions 24/7 in Finnish. Ready within 48 hours.
+
+**Key features:**
+- RAG (Retrieval-Augmented Generation) — answers based only on the client's own knowledge base
+- PDF upload and automatic website crawl (sitemap-based, up to 50 pages)
+- Full branding customization: bot name, avatar, color, quick replies
+- Lead capture form embedded in chat
+- Analytics dashboard with full conversation history
+- One-line JavaScript embed — works on any platform (WordPress, Webflow, Next.js, HTML)
+- EU data (Google Cloud europe-west3), GDPR compliant
+- Admin panel for managing knowledge base, branding, and usage quotas
+
+**Pricing (EUR, VAT 0%):**
+- Startti (Starter): 49€/month + 499€ setup — 200 messages/month, 3 knowledge sources, basic branding
+- Kasvu (Growth): 99€/month + 799€ setup — 1,000 messages/month, unlimited sources, full branding, lead capture
+- Pro: 199€/month + 1,490€ setup — 5,000 messages/month, 3 bots, white-label, SLA support
+- Annual billing saves ~20%. Contracts are 1 year, upgradeable anytime.
+- Bundle: Website + KoivuChat — 990€ setup + 49€/month
+
+**Target audience:** Finnish small and medium businesses — restaurants, retail, e-commerce, real estate, service companies.
+
+**Contact for KoivuChat:** hello@koivulabs.com | Subject: "KoivuChat — haluan aloittaa"
+
 ## Projects
 
 - **BrainBuffer** — Thought capture at the speed of light. Minimalist tool for instant idea preservation.
@@ -24,6 +51,8 @@ Koivu Labs is an independent software studio founded in 2026 in Saarijärvi, Fin
 ## Pages
 
 - [Home](https://koivulabs.com) — The Birch Tech-Tree ecosystem overview
+- [KoivuChat](https://koivulabs.com/koivuchat) — AI chatbot product for Finnish businesses
 - [Founder's Log](https://koivulabs.com/logbook) — Dev blog and studio updates
 - [Manifesto](https://koivulabs.com/about) — Studio philosophy and founder's journey
 - [Registry](https://koivulabs.com/registry) — Full project registry
+- [Services](https://koivulabs.com/services) — Studio services and consulting

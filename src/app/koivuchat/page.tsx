@@ -5,11 +5,104 @@ import ContactForm from '@/components/ContactForm'
 export const metadata: Metadata = {
   title: 'KoivuChat — AI-chatbotti suomalaiselle yritykselle | Koivu Labs',
   description: 'KoivuChat oppii yrityksesi tiedoista ja vastaa asiakkaidesi kysymyksiin — ympäri vuorokauden. Käyttövalmis 48 tunnissa. EU-data, GDPR-valmis, täysin brändisi näköinen.',
+  keywords: [
+    'AI chatbotti', 'chatbot suomi', 'AI asiakaspalvelu', 'tekoäly asiakaspalvelu',
+    'chatbotti yritykselle', 'AI botti suomeksi', 'automaattinen asiakaspalvelu',
+    'KoivuChat', 'Koivu Labs', 'RAG chatbot', 'verkkosivuchatbot',
+  ],
   openGraph: {
     title: 'KoivuChat — AI-chatbotti suomalaiselle yritykselle',
-    description: 'Oppii yrityksesi tiedoista. Käyttövalmis 48 tunnissa. EU-data.',
+    description: 'Oppii yrityksesi tiedoista. Käyttövalmis 48 tunnissa. EU-data, GDPR-valmis.',
     url: 'https://koivulabs.com/koivuchat',
+    type: 'website',
+    siteName: 'Koivu Labs',
+    images: [
+      {
+        url: 'https://koivulabs.com/images/birch_tech_tree.png',
+        width: 1200,
+        height: 630,
+        alt: 'KoivuChat — AI-chatbotti suomalaiselle yritykselle',
+      },
+    ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KoivuChat — AI-chatbotti suomalaiselle yritykselle',
+    description: 'Oppii yrityksesi tiedoista. Käyttövalmis 48 tunnissa. EU-data.',
+    images: ['https://koivulabs.com/images/birch_tech_tree.png'],
+  },
+  alternates: {
+    canonical: 'https://koivulabs.com/koivuchat',
+  },
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'KoivuChat',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  url: 'https://koivulabs.com/koivuchat',
+  description: 'AI-chatbotti suomalaiselle yritykselle. Oppii yrityksesi tiedoista ja vastaa asiakkaidesi kysymyksiin ympäri vuorokauden. EU-data, GDPR-valmis.',
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Startti',
+      price: '49',
+      priceCurrency: 'EUR',
+      priceSpecification: {
+        '@type': 'RecurringChargeSpecification',
+        billingDuration: 'P1M',
+        price: '49',
+        priceCurrency: 'EUR',
+      },
+    },
+    {
+      '@type': 'Offer',
+      name: 'Kasvu',
+      price: '99',
+      priceCurrency: 'EUR',
+      priceSpecification: {
+        '@type': 'RecurringChargeSpecification',
+        billingDuration: 'P1M',
+        price: '99',
+        priceCurrency: 'EUR',
+      },
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro',
+      price: '199',
+      priceCurrency: 'EUR',
+      priceSpecification: {
+        '@type': 'RecurringChargeSpecification',
+        billingDuration: 'P1M',
+        price: '199',
+        priceCurrency: 'EUR',
+      },
+    },
+  ],
+  provider: {
+    '@type': 'Organization',
+    name: 'Koivu Labs',
+    url: 'https://koivulabs.com',
+    email: 'hello@koivulabs.com',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Saarijärvi',
+      addressCountry: 'FI',
+    },
+  },
+  inLanguage: 'fi',
+  featureList: [
+    'RAG-pohjainen tietohaku',
+    'PDF-lataus ja verkkosivujen crawl',
+    'Täysi brändäys',
+    'Liidinkeräys',
+    'Analytiikka ja keskusteluhistoria',
+    'JavaScript embed kaikille alustoille',
+    'EU-data ja GDPR-yhteensopivuus',
+  ],
 }
 
 const features = [
@@ -115,16 +208,16 @@ const plans: Plan[] = [
     setup: '799',
     description: 'Aktiiviselle yritykselle. Sopii verkkokaupalle, kiinteistönvälittäjälle tai yritykselle jolla on jatkuva asiakasvirta.',
     features: [
-      '1 500 asiakasviestiä / kk',
-      '→ noin 50 keskustelua päivässä',
+      '1 000 asiakasviestiä / kk',
+      '→ noin 33 keskustelua päivässä',
       '1 chatbotti',
       'Rajattomat tietolähteet',
       'Täysi brändäys (avatar, pikavalinnat)',
+      'Liidinkeräys & yhteydenottolomake',
       'Analytiikka & historia',
-      'Oma OpenAI API-avain',
       'Prioriteettituki',
     ],
-    note: 'Oma OpenAI-avain poistaa käytännössä viestirajoitteen — viesteistä veloitetaan silloin suoraan OpenAI:lta (noin 0,001–0,005€ / viesti).',
+    note: 'Kiintiön täyttyessä botti ohjaa asiakkaan ottamaan yhteyttä suoraan — asiakaskokemus ei katkea äkisti.',
     cta: 'Aloita Kasvulla',
     highlight: true,
   },
@@ -136,13 +229,13 @@ const plans: Plan[] = [
     setup: '1 490',
     description: 'Useammalle botille tai suurelle volyymille. Ketju, franchise tai useampi toimipiste yhdessä paketissa.',
     features: [
-      'Rajattomat viestit',
-      '→ ei kuukausikiintiötä',
+      '5 000 asiakasviestiä / kk',
+      '→ noin 165 keskustelua päivässä',
       '3 chatbottia',
       'Rajattomat tietolähteet',
       'White-label (ei KoivuLabs-brändäystä)',
+      'Liidinkeräys & yhteydenottolomake',
       'Analytiikka & historia',
-      'Omat OpenAI-avaimet per botti',
       'SLA + dedikoitu tuki',
     ],
     note: 'Jokaisella botilla on oma tietopohja, brändäys ja analytiikka — hallinta yhdestä paikasta.',
@@ -154,6 +247,10 @@ const plans: Plan[] = [
 export default function KoivuChatPage() {
   return (
     <main className="min-h-screen bg-slate-950 overflow-x-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* Hero */}
       <section className="relative pt-40 pb-32 px-6 md:px-12 lg:px-24">
@@ -295,6 +392,47 @@ export default function KoivuChatPage() {
         </div>
       </section>
 
+      {/* Knowledge Base kasvu */}
+      <section className="px-6 md:px-12 lg:px-24 pb-32">
+        <div className="max-w-5xl mx-auto">
+          <div className="tree-glass p-8 md:p-12 border-teal-500/20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+              <div>
+                <div className="inline-block px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-[10px] font-bold tracking-[0.3em] uppercase mb-6">
+                  Orgaaninen kasvu / Living Knowledge Base
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold italic text-slate-100 mb-4">
+                  Paras botti ei ole<br />
+                  <span className="text-teal-400">valmis — se kehittyy.</span>
+                </h2>
+                <p className="text-slate-400 leading-relaxed mb-4">
+                  Useimmat yrittäjät epäilevät: <em className="text-slate-300">"Ei botti tiedä meidän asioista mitään."</em> Oikeasti asia menee toisin.
+                </p>
+                <p className="text-slate-400 leading-relaxed">
+                  Botti aloittaa sillä mitä sille syötetään. Mutta paras tapahtuu sen jälkeen: näet suoraan adminpaneelista mitä asiakkaat oikeasti kysyvät. Puuttuuko tieto hinnoittelusta? Lisäät sen. Kysytäänkö toimitusajasta? Lisäät sen. Kahden kuukauden päästä sinulla on tarkempi botti kuin kilpailijalla, joka osti valmiiksi pakatun ratkaisun.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { step: '01', text: 'Asiakas kysyy jotain mitä botti ei osaa', sub: 'Näet sen keskusteluhistoriasta' },
+                  { step: '02', text: 'Lisäät tiedon tietopohjaan', sub: 'URL, PDF tai manuaalinen kirjaus' },
+                  { step: '03', text: 'Botti osaa vastata seuraavalle', sub: 'Ilman manuaalista ohjelmointia' },
+                  { step: '04', text: 'Tietopohja kasvaa orgaanisesti', sub: 'Puolen vuoden päästä botti on eri luokkaa' },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-4">
+                    <span className="text-teal-400/30 font-black text-2xl leading-none mt-0.5">{item.step}</span>
+                    <div>
+                      <p className="text-slate-200 text-sm font-medium">{item.text}</p>
+                      <p className="text-slate-500 text-xs mt-0.5">{item.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section className="px-6 md:px-12 lg:px-24 pb-32">
         <div className="max-w-5xl mx-auto">
@@ -388,6 +526,10 @@ export default function KoivuChatPage() {
             <p className="text-slate-400 max-w-xl">
               Kaikki hinnat sisältävät setup-maksun (kertaluonteinen) ja kuukausimaksun.
               Vuosimaksulla säästät kaksi kuukautta. Hinnat ALV 0%.
+            </p>
+            <p className="text-slate-500 text-sm max-w-xl mt-3">
+              Sopimukset tehdään vuodeksi kerrallaan. Pakettia voi päivittää ylöspäin milloin tahansa — sopimuskauden päättyessä räätälöimme uuden sopimuksen tarpeidesi mukaan.
+              Otamme mielellään myös referenssiasiakkaita — <a href="mailto:hello@koivulabs.com?subject=Referenssiasiakas" className="text-teal-400/70 hover:text-teal-400 transition-colors">kysy erikoisehdoista</a>.
             </p>
           </header>
 
@@ -523,8 +665,8 @@ export default function KoivuChatPage() {
             {[
               {
                 title: 'Liidinkeräys',
-                description: 'Botti voi pyytää yhteystiedot (nimi, sähköposti, puhelin) kiinnostuneelta kävijältä — suoraan chat-ikkunassa. Liidit tallentuvat automaattisesti.',
-                status: 'Kehityksessä',
+                description: 'Botti pyytää yhteystiedot kiinnostuneelta kävijältä — suoraan chat-ikkunassa, juuri oikeaan aikaan. Liidit tallentuvat automaattisesti ja saat sähköposti-ilmoituksen välittömästi.',
+                status: 'Valmis',
               },
               {
                 title: 'Asiakasportaali',
@@ -539,13 +681,13 @@ export default function KoivuChatPage() {
               {
                 title: 'Sivukartta-crawl',
                 description: 'Anna vain verkkosivustosi osoite — KoivuChat indeksoi kaikki sivut automaattisesti sitemap.xml:n kautta. Ei enää URL kerrallaan.',
-                status: 'Kehityksessä',
+                status: 'Valmis',
               },
             ].map((item) => (
               <div key={item.title} className="tree-glass p-6 flex gap-4 items-start opacity-80 hover:opacity-100 transition-opacity">
                 <div className="mt-0.5">
                   <span className={`text-[9px] font-bold tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border ${
-                    item.status === 'Kehityksessä'
+                    item.status === 'Kehityksessä' || item.status === 'Valmis'
                       ? 'text-teal-400/70 border-teal-500/20 bg-teal-500/5'
                       : 'text-slate-500 border-slate-700 bg-slate-800/50'
                   }`}>
@@ -579,8 +721,12 @@ export default function KoivuChatPage() {
                 a: 'Yksi viesti = yksi asiakkaan lähettämä kysymys botille. Botin vastaus ei kuluta kiintiötä. Esimerkki: asiakas kirjoittaa "Milloin olette auki?" — se on yksi viesti. Pitkäkin keskustelu kuluttaa vain sen verran viestejä kuin asiakas on kirjoittanut. Kiintiön täytyttyä botti ilmoittaa kohteliaasti ja ohjaa ottamaan yhteyttä suoraan — asiakaskokemus ei katkea äkisti.',
               },
               {
-                q: 'Miten paljon 200 tai 1 500 viestiä käytännössä on?',
-                a: '200 viestiä / kk tarkoittaa noin 6–7 asiakaskysymystä päivässä — riittää hyvin pienelle yritykselle jonka sivustolla käy muutamia kävijöitä päivittäin. 1 500 viestiä / kk on noin 50 päivässä — sopii aktiiviselle verkkokaupalle tai palveluyritykselle. Omalla OpenAI-avaimella (Kasvu-paketti) viestimäärä on käytännössä rajaton, ja viesteistä veloitetaan suoraan OpenAI:lta murto-osalla senttiä per viesti.',
+                q: 'Miten paljon 200 tai 1 000 viestiä käytännössä on?',
+                a: '200 viestiä / kk tarkoittaa noin 6–7 asiakaskysymystä päivässä — riittää hyvin pienelle yritykselle, jonka sivustolla käy muutamia kävijöitä päivittäin. 1 000 viestiä / kk on noin 33 päivässä — sopii aktiiviselle verkkokaupalle tai palveluyritykselle. Tarvitsetko enemmän? Räätälöimme kiintiön tarpeidesi mukaan.',
+              },
+              {
+                q: 'Kuinka pitkä sopimus tehdään?',
+                a: 'Sopimukset tehdään vuodeksi kerrallaan. Pakettia voi päivittää ylöspäin milloin tahansa — sopimuskauden päättyessä katsotaan yhdessä mikä sopii jatkoon parhaiten. Otamme myös referenssiasiakkaita erityisehdoin — kysy lisää.',
               },
               {
                 q: 'Miten botti saa tietoa yrityksestäni?',
