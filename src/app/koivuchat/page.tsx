@@ -95,7 +95,7 @@ const plans: Plan[] = [
     setup: '499',
     description: 'Täydellinen aloitukseen. Sopii yritykselle jolla on kohtuullinen kävijämäärä — esim. ravintola, kampaamo tai paikallinen palveluyritys.',
     features: [
-      '200 asiakkasviestiä / kk',
+      '200 asiakasviestiä / kk',
       '→ noin 6–7 keskustelua päivässä',
       '1 chatbotti',
       '3 tietolähdettä (URL tai PDF)',
@@ -115,7 +115,7 @@ const plans: Plan[] = [
     setup: '799',
     description: 'Aktiiviselle yritykselle. Sopii verkkokaupalle, kiinteistönvälittäjälle tai yritykselle jolla on jatkuva asiakasvirta.',
     features: [
-      '1 500 asiakkasviestiä / kk',
+      '1 500 asiakasviestiä / kk',
       '→ noin 50 keskustelua päivässä',
       '1 chatbotti',
       'Rajattomat tietolähteet',
@@ -213,6 +213,85 @@ export default function KoivuChatPage() {
               <div className="text-[10px] text-slate-500 font-bold tracking-[0.2em] uppercase">{stat.label}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ROI / Arvolupaus */}
+      <section className="px-6 md:px-12 lg:px-24 pb-32">
+        <div className="max-w-5xl mx-auto">
+          <header className="mb-12">
+            <div className="inline-block px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-[10px] font-bold tracking-[0.3em] uppercase mb-6">
+              Miksi KoivuChat / The Case
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-100 italic">
+              Yksi botti,<br />
+              <span className="text-teal-400">kolme roolia.</span>
+            </h2>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {[
+              {
+                role: 'Asiakaspalvelija',
+                icon: '💬',
+                description: 'Vastaa samoihin kysymyksiin tuhat kertaa ilman väsymistä. Aukioloajat, hinnat, palvelut, ohjeet — heti, oikein, aina.',
+                note: 'Osa-aikainen asiakaspalvelija: ~1 800€/kk\nKoivuChat Kasvu: 99€/kk',
+              },
+              {
+                role: 'Liidien kerääjä',
+                icon: '🎯',
+                description: 'Kävijä saapuu sivulle klo 23. Kukaan ei vastaa — ja liidi menetetään. KoivuChat pitää kiinnostuneen mukana ja ohjaa ottamaan yhteyttä.',
+                note: 'Yksikin ylimääräinen asiakas kuussa kattaa kuukausimaksun.',
+              },
+              {
+                role: 'Tietopankki',
+                icon: '📚',
+                description: 'Henkilöstö kysyy toistuvasti samoja asioita? Botti voi toimia myös sisäisenä tietopankkina — tuotekortit, prosessit, ohjeet.',
+                note: 'Sama botti, eri tietopohja. Kaksi käyttöä yhdellä hinnalla.',
+              },
+            ].map((item) => (
+              <div key={item.role} className="tree-glass p-8 group hover:border-teal-500/30 transition-all duration-500 flex flex-col">
+                <div className="text-3xl mb-4">{item.icon}</div>
+                <h3 className="text-lg font-bold italic text-slate-100 mb-3 group-hover:text-teal-400 transition-colors">{item.role}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed flex-1 mb-4">{item.description}</p>
+                <p className="text-[11px] text-teal-400/60 leading-relaxed border-t border-slate-800 pt-4 whitespace-pre-line">{item.note}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Kustannusvertailu */}
+          <div className="tree-glass p-8 md:p-10 border-teal-500/20">
+            <h3 className="text-[10px] text-slate-500 font-bold tracking-[0.3em] uppercase mb-6">Kustannusvertailu / Cost Comparison</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-3">
+                {[
+                  { label: 'Osa-aikainen asiakaspalvelija', value: '~1 800€ / kk', muted: false },
+                  { label: 'Palkka + sivukulut + lomarahat', value: '~22 000€ / vuosi', muted: false },
+                  { label: 'Sairauspäivät, vaihtuvuus, perehdytys', value: 'Ei arvioitavissa', muted: true },
+                ].map((row) => (
+                  <div key={row.label} className="flex justify-between items-center py-2 border-b border-slate-800">
+                    <span className={`text-sm ${row.muted ? 'text-slate-600' : 'text-slate-400'}`}>{row.label}</span>
+                    <span className={`text-sm font-semibold ${row.muted ? 'text-slate-600' : 'text-red-400/70'}`}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-3">
+                {[
+                  { label: 'KoivuChat Kasvu', value: '99€ / kk', highlight: true },
+                  { label: 'Setup-maksu (kertaluonteinen)', value: '799€', highlight: false },
+                  { label: 'Vastaa 1 500 kysymykseen / kk', value: 'Väsymättä, 24/7', highlight: true },
+                ].map((row) => (
+                  <div key={row.label} className="flex justify-between items-center py-2 border-b border-slate-800">
+                    <span className="text-sm text-slate-400">{row.label}</span>
+                    <span className={`text-sm font-semibold ${row.highlight ? 'text-teal-400' : 'text-slate-300'}`}>{row.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <p className="text-xs text-slate-600 mt-6">
+              * KoivuChat ei korvaa ihmistä kaikessa — mutta se hoitaa toistuvat kysymykset, jotta ihminen voi keskittyä siihen mikä oikeasti vaatii ihmistä.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -421,6 +500,64 @@ export default function KoivuChatPage() {
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tulossa */}
+      <section className="px-6 md:px-12 lg:px-24 pb-32">
+        <div className="max-w-5xl mx-auto">
+          <header className="mb-12">
+            <div className="inline-block px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-[10px] font-bold tracking-[0.3em] uppercase mb-6">
+              Roadmap / Tulossa
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold italic text-slate-100 mb-3">
+              Kehitämme jatkuvasti.
+            </h2>
+            <p className="text-slate-500 max-w-xl text-sm">
+              KoivuChat on aktiivisessa kehityksessä. Nämä ominaisuudet ovat tulossa lähikuukausina — kaikki nykyiset asiakkaat saavat ne automaattisesti käyttöön.
+            </p>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              {
+                title: 'Liidinkeräys',
+                description: 'Botti voi pyytää yhteystiedot (nimi, sähköposti, puhelin) kiinnostuneelta kävijältä — suoraan chat-ikkunassa. Liidit tallentuvat automaattisesti.',
+                status: 'Kehityksessä',
+              },
+              {
+                title: 'Asiakasportaali',
+                description: 'Oma kirjautuminen asiakkaalle. Hallitse tietopohjaa, brändäystä ja tilastoja itse — ilman KoivuLabs-kontaktia.',
+                status: 'Suunnitteilla',
+              },
+              {
+                title: 'Kuukausiraportti',
+                description: 'Automaattinen yhteenveto: mitä kysyttiin, mihin vastattiin, mihin ei. Tunnista mitä tietoa tietopohjaasi vielä puuttuu.',
+                status: 'Suunnitteilla',
+              },
+              {
+                title: 'Sivukartta-crawl',
+                description: 'Anna vain verkkosivustosi osoite — KoivuChat indeksoi kaikki sivut automaattisesti sitemap.xml:n kautta. Ei enää URL kerrallaan.',
+                status: 'Kehityksessä',
+              },
+            ].map((item) => (
+              <div key={item.title} className="tree-glass p-6 flex gap-4 items-start opacity-80 hover:opacity-100 transition-opacity">
+                <div className="mt-0.5">
+                  <span className={`text-[9px] font-bold tracking-[0.2em] uppercase px-2 py-0.5 rounded-full border ${
+                    item.status === 'Kehityksessä'
+                      ? 'text-teal-400/70 border-teal-500/20 bg-teal-500/5'
+                      : 'text-slate-500 border-slate-700 bg-slate-800/50'
+                  }`}>
+                    {item.status}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-slate-200 font-semibold text-sm mb-1">{item.title}</h3>
+                  <p className="text-slate-500 text-xs leading-relaxed">{item.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
