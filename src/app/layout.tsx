@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   description: "A Finnish Software Studio focused on AI-driven utility. Bridging human common sense with AI power.",
   keywords: ["Koivu Labs", "AI", "Software Studio", "Finland", "Pragmatic Intelligence", "KoivuChat", "AI chatbot", "chatbotti suomi", "BrainBuffer", "Human Dashboard"],
   authors: [{ name: "Koivu Labs" }],
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
   openGraph: {
     title: "Koivu Labs | Pragmatic Intelligence",
     description: "A Finnish Software Studio focused on AI-driven utility.",
