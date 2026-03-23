@@ -254,9 +254,14 @@
         chatHistory.push({ role: 'assistant', content: data.answer });
         messageCount++;
 
-        // Unanswered: jos botti ei löytänyt tietoa → näytä ilmoitusnappi
-        if (!data.found) {
+        // Unanswered: jos botti ei löytänyt tietoa → näytä ilmoitusnappi (vain jos enabled)
+        if (!data.found && CONFIG.unanswered_enabled) {
           addUnansweredPrompt(question);
+        }
+        // on_not_found lead trigger
+        if (!data.found) {
+          const lc = CONFIG.lead_config || {};
+          if (lc.enabled && lc.trigger === 'on_not_found') showLeadForm();
         }
 
         // Lead capture trigger
@@ -303,8 +308,8 @@
       setTimeout(() => div.remove(), 3000);
     });
     div.querySelector('.rag-ua-no').addEventListener('click', () => div.remove());
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    const msgsEl = document.getElementById('rag-messages');
+    if (msgsEl) { msgsEl.appendChild(div); msgsEl.scrollTop = msgsEl.scrollHeight; }
   }
 
   // ── Lead capture ───────────────────────────────────────────────────────
@@ -349,8 +354,8 @@
       setTimeout(() => div.remove(), 4000);
     });
     div.querySelector('.rag-lead-skip').addEventListener('click', () => div.remove());
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    const msgsEl = document.getElementById('rag-messages');
+    if (msgsEl) { msgsEl.appendChild(div); msgsEl.scrollTop = msgsEl.scrollHeight; }
   }
 
   // ── CSS-generaattori ──────────────────────────────────────────────────
