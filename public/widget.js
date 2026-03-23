@@ -40,10 +40,16 @@
     avatar:          '🤖',
   };
 
-  let isOpen       = false;
-  let chatHistory  = [];
-  let isLoading    = false;
-  let initialized  = false;
+  let isOpen         = false;
+  let chatHistory    = [];
+  let isLoading      = false;
+  let initialized    = false;
+  let messageCount   = 0;    // seurataan lead-triggeriä varten
+  let leadCaptured   = false; // näytetään vain kerran
+  // Session ID — generoidaan kerran per sivulatauts, lähetetään /chat:iin
+  const SESSION_ID = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2) + Date.now().toString(36);
 
   // ── Hae konfiguraatio API:sta ─────────────────────────────────────────
   // Widget hakee asetuksensa palvelimelta → asiakkaan embed-koodi ei muutu
@@ -236,6 +242,7 @@
             context:      CONFIG.context,
             bot_id:       BOT_ID,
             chat_history: chatHistory.slice(-6, -1),
+            session_id:   SESSION_ID,
           })
         });
 
@@ -245,6 +252,15 @@
         typing.remove();
         addMsg('bot', data.answer, data.sources || [], data.found);
         chatHistory.push({ role: 'assistant', content: data.answer });
+        messageCount++;
+
+        // Unanswered: jos botti ei löytänyt tietoa → näytä ilmoitusnappi
+        if (!data.found) {
+          addUnansweredPrompt(question);
+        }
+
+        // Lead capture trigger
+        checkLeadTrigger();
 
       } catch (err) {
         typing.remove();
@@ -264,6 +280,77 @@
       this.style.height = 'auto';
       this.style.height = Math.min(this.scrollHeight, 80) + 'px';
     });
+  }
+
+  // ── Unanswered questions ──────────────────────────────────────────────
+  function addUnansweredPrompt(question) {
+    const div = document.createElement('div');
+    div.className = 'rag-unanswered-prompt';
+    div.innerHTML = `
+      <span>Haluatko ilmoittaa tästä puuttuvasta tiedosta ylläpidolle?</span>
+      <button class="rag-ua-yes">📬 Ilmoita</button>
+      <button class="rag-ua-no">✕</button>
+    `;
+    div.querySelector('.rag-ua-yes').addEventListener('click', async () => {
+      div.innerHTML = '<span style="color:#94a3b8;font-size:12px">Kiitos ilmoituksesta! Lisäämme tiedon.</span>';
+      try {
+        await fetch(`${API_BASE}/unanswered`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bot_id: BOT_ID, question, context: CONFIG.context }),
+        });
+      } catch (_) {}
+      setTimeout(() => div.remove(), 3000);
+    });
+    div.querySelector('.rag-ua-no').addEventListener('click', () => div.remove());
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // ── Lead capture ───────────────────────────────────────────────────────
+  function checkLeadTrigger() {
+    if (leadCaptured) return;
+    const cfg = CONFIG.lead_config || {};
+    if (!cfg.enabled) return;
+    const trigger = cfg.trigger || 'on_not_found';
+    if (trigger === 'always' && messageCount === 1) showLeadForm();
+    if (trigger === 'after_3_messages' && messageCount === 3) showLeadForm();
+    // on_not_found: käsitellään addUnansweredPrompt:n sijasta erikseen vain jos lead on enabled
+  }
+
+  function showLeadForm() {
+    if (leadCaptured) return;
+    leadCaptured = true;
+    const cfg = CONFIG.lead_config || {};
+    const div = document.createElement('div');
+    div.className = 'rag-lead-form';
+    div.innerHTML = `
+      <div class="rag-lead-title">${cfg.question || 'Jätä yhteystietosi, niin olemme sinuun yhteydessä.'}</div>
+      <input class="rag-lead-input" id="rag-lead-name" placeholder="Nimesi (vapaaehtoinen)" />
+      <input class="rag-lead-input" id="rag-lead-email" type="email" placeholder="Sähköpostisi *" required />
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="rag-lead-submit">Lähetä</button>
+        <button class="rag-lead-skip">Ohita</button>
+      </div>
+    `;
+    div.querySelector('.rag-lead-submit').addEventListener('click', async () => {
+      const email = div.querySelector('#rag-lead-email').value.trim();
+      const name  = div.querySelector('#rag-lead-name').value.trim();
+      if (!email) { div.querySelector('#rag-lead-email').style.borderColor = 'red'; return; }
+      div.innerHTML = '<div style="color:#94a3b8;font-size:13px;padding:4px 0">✓ Kiitos! Olemme sinuun pian yhteydessä.</div>';
+      try {
+        const lastQuestion = chatHistory.slice(-2).find(m => m.role === 'user')?.content || '';
+        await fetch(`${API_BASE}/lead`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bot_id: BOT_ID, name, email, question: lastQuestion, context: CONFIG.context }),
+        });
+      } catch (_) {}
+      setTimeout(() => div.remove(), 4000);
+    });
+    div.querySelector('.rag-lead-skip').addEventListener('click', () => div.remove());
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
   // ── CSS-generaattori ──────────────────────────────────────────────────
@@ -346,6 +433,15 @@
     .rag-send:disabled { background: #334155; cursor: not-allowed; transform: none; }
     .rag-footer { text-align: center; padding: 4px; font-size: 9px; color: #334155; font-family: system-ui; letter-spacing: 0.05em; }
     .rag-footer a { color: ${c}; text-decoration: none; opacity: 0.7; }
+    .rag-unanswered-prompt { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:8px 12px; background:rgba(234,179,8,0.06); border-top:1px solid rgba(234,179,8,0.15); font-size:12px; color:#94a3b8; font-family:system-ui,-apple-system,sans-serif; }
+    .rag-ua-yes { background:rgba(234,179,8,0.15); border:1px solid rgba(234,179,8,0.3); color:#fcd34d; border-radius:12px; padding:3px 10px; font-size:11px; cursor:pointer; }
+    .rag-ua-no  { background:transparent; border:none; color:#64748b; font-size:14px; cursor:pointer; padding:2px 4px; }
+    .rag-lead-form { margin:8px 12px; background:#1e293b; border:1px solid ${c}33; border-radius:10px; padding:12px; font-family:system-ui,-apple-system,sans-serif; }
+    .rag-lead-title { font-size:13px; color:#cbd5e1; margin-bottom:10px; line-height:1.4; }
+    .rag-lead-input { width:100%; box-sizing:border-box; background:#0f172a; border:1px solid #334155; border-radius:7px; padding:7px 10px; color:#e2e8f0; font-size:13px; margin-bottom:6px; outline:none; }
+    .rag-lead-input:focus { border-color:${c}; }
+    .rag-lead-submit { background:${c}; border:none; color:white; border-radius:7px; padding:7px 16px; font-size:13px; cursor:pointer; font-family:system-ui; }
+    .rag-lead-skip   { background:transparent; border:1px solid #334155; color:#64748b; border-radius:7px; padding:7px 12px; font-size:13px; cursor:pointer; }
   `;
   }
 
