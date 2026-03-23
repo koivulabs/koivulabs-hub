@@ -90,6 +90,7 @@
         <button class="rag-header-close" id="rag-close" aria-label="Sulje">✕</button>
       </div>
       <div class="rag-messages" id="rag-messages" role="log" aria-live="polite"></div>
+      <div class="rag-quick-replies" id="rag-quick-replies"></div>
       <div class="rag-input-area">
         <textarea
           class="rag-input" id="rag-input" rows="1"
@@ -121,12 +122,41 @@
       btn.setAttribute('aria-expanded', isOpen);
       if (isOpen && messagesEl.children.length === 0) {
         addMsg('bot', CONFIG.welcome_message);
+        renderQuickReplies();
       }
       if (isOpen) setTimeout(() => inputEl.focus(), 300);
     }
 
     btn.addEventListener('click', toggle);
     document.getElementById('rag-close').addEventListener('click', toggle);
+
+    // ── Quick replies ──────────────────────────────────────────────────
+    // Näytetään napit ennen ensimmäistä käyttäjäviestiä.
+    // Klikattu nappi lähettää kysymyksen automaattisesti ja napit katoavat.
+    const quickRepliesEl = document.getElementById('rag-quick-replies');
+
+    function renderQuickReplies() {
+      const replies = CONFIG.quick_replies || [];
+      if (!replies.length) return;
+      quickRepliesEl.innerHTML = replies.map(q =>
+        `<button class="rag-qr-btn" data-q="${q.replace(/"/g, '&quot;')}">${q}</button>`
+      ).join('');
+      quickRepliesEl.classList.add('visible');
+    }
+
+    function hideQuickReplies() {
+      quickRepliesEl.classList.remove('visible');
+      quickRepliesEl.innerHTML = '';
+    }
+
+    quickRepliesEl.addEventListener('click', e => {
+      const btn = e.target.closest('.rag-qr-btn');
+      if (!btn) return;
+      const question = btn.getAttribute('data-q');
+      hideQuickReplies();
+      inputEl.value = question;
+      send();
+    });
 
     // ESC sulkee widgetin
     document.addEventListener('keydown', e => {
@@ -191,6 +221,7 @@
       isLoading = true;
       sendEl.disabled = true;
 
+      hideQuickReplies();   // piilota quick replies ensimmäisen viestin jälkeen
       addMsg('user', question);
       chatHistory.push({ role: 'user', content: question });
 
@@ -302,6 +333,10 @@
     .rag-dot:nth-child(2) { animation-delay: 0.2s; }
     .rag-dot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes ragDot { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-4px); opacity:1; } }
+    .rag-quick-replies { display: none; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0; }
+    .rag-quick-replies.visible { display: flex; }
+    .rag-qr-btn { background: transparent; border: 1px solid ${c}55; color: ${c}; border-radius: 16px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: system-ui,-apple-system,sans-serif; transition: background 0.15s, border-color 0.15s; white-space: nowrap; }
+    .rag-qr-btn:hover { background: ${c}22; border-color: ${c}; }
     .rag-input-area { padding: 10px 12px; border-top: 1px solid rgba(51,65,85,0.4); display: flex; gap: 8px; }
     .rag-input { flex: 1; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; color: #e2e8f0; font-size: 13px; font-family: system-ui,-apple-system,sans-serif; outline: none; resize: none; max-height: 80px; line-height: 1.4; transition: border-color 0.2s; }
     .rag-input:focus { border-color: ${c}; }
