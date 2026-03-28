@@ -67,9 +67,41 @@ export default function LogEntryPage({ params }: Props) {
                     </header>
 
                     <div className="prose prose-invert max-w-none text-slate-400 leading-relaxed text-lg">
-                        {log.content.split('\n').filter(Boolean).map((para, i) => (
-                            <p key={i} className="mb-6">{para}</p>
-                        ))}
+                        {log.content.split('\n').filter(Boolean).map((para, i) => {
+                            // Render markdown images as <img> tags
+                            const imgMatch = para.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+                            if (imgMatch) {
+                                return (
+                                    <figure key={i} className="my-8">
+                                        <img
+                                            src={imgMatch[2]}
+                                            alt={imgMatch[1]}
+                                            className="rounded-lg w-full max-w-2xl mx-auto"
+                                            loading="lazy"
+                                        />
+                                        {imgMatch[1] && (
+                                            <figcaption className="text-center text-sm text-slate-600 mt-2">
+                                                {imgMatch[1]}
+                                            </figcaption>
+                                        )}
+                                    </figure>
+                                );
+                            }
+
+                            // Render markdown headings
+                            const h2Match = para.match(/^## (.+)$/);
+                            if (h2Match) {
+                                return <h2 key={i} className="text-2xl font-bold text-slate-200 mt-12 mb-4">{h2Match[1]}</h2>;
+                            }
+
+                            const h3Match = para.match(/^### (.+)$/);
+                            if (h3Match) {
+                                return <h3 key={i} className="text-xl font-bold text-slate-300 mt-8 mb-3">{h3Match[1]}</h3>;
+                            }
+
+                            // Regular paragraph
+                            return <p key={i} className="mb-6">{para}</p>;
+                        })}
                     </div>
                 </article>
 

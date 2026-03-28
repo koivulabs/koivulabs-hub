@@ -52,3 +52,4 @@ export async function downloadTelegramPhoto(fileId: string): Promise<TelegramPho
         extension: ext === 'jpeg' ? 'jpg' : ext,
     };
 }
+       
