@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { transcribeVoice } from '@/lib/transcribeVoice';
 import { refineToLogbookPost } from '@/lib/koivuVoice';
 import { commitToGitHub, ImageAttachment } from '@/lib/githubCommit';
-import { saveLogToFirestore } from '@/lib/firestoreRest';
+import { saveLogToFirestore, saveNowPage, NowPageData, deleteLogFromFirestore, listPublishedLogs } from '@/lib/firestoreRest';
 import { downloadTelegramPhoto } from '@/lib/telegramPhoto';
 import {
     savePendingPost,
@@ -88,6 +88,7 @@ async function removeInlineKeyboard(chatId: number, messageId: number): Promise<
 const MAIN_MENU_KEYBOARD = {
     keyboard: [
         [{ text: '📝 Uusi postaus' }, { text: '📋 Draftit' }],
+        [{ text: '📌 Now' }, { text: '🗑 Poista' }],
         [{ text: '📊 Status' }, { text: '❓ Ohje' }],
     ],
     resize_keyboard: true,
@@ -163,6 +164,13 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
     const userState = await getUserState(userId);
 
     if (userState.mode === 'editing' && userState.pendingId) {
+        // Route Now-page input to its own handler
+        if (userState.pendingId === 'now_input') {
+            await clearUserState(userId);
+            await handleNowUpdate(chatId, userId, message);
+            return;
+        }
+
         await handleEditInput(chatId, userId, message, userState.pendingId);
         return;
     }
@@ -212,6 +220,17 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
                 return;
             }
 
+            if (rawText === '📌 Now') {
+                await sendMessage(chatId, '📌 Lähetä teksti- tai ääniviesti, jolla päivitän Now-sivun.\n\nKerro mitä rakennat, opit, luet, et tee, ja missä olet.');
+                await setUserState(userId, { mode: 'editing', pendingId: 'now_input' });
+                return;
+            }
+
+            if (rawText === '🗑 Poista') {
+                await handleDeleteMenu(chatId);
+                return;
+            }
+
             if (rawText === '❓ Ohje') {
                 await sendMessage(
                     chatId,
@@ -221,6 +240,8 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
                     '📷 *Kuva + caption* — kuva liitetään postaukseen\n\n' +
                     '✅ Julkaise / ✏️ Muokkaa / ❌ Hylkää napeilla\n\n' +
                     '📋 *Draftit* — keskeneräiset postaukset\n' +
+                    '📌 *Now* — päivitä Now-sivu\n' +
+                    '🗑 *Poista* — poista julkaistu postaus\n' +
                     '📊 *Status* — sivuston tilanne\n' +
                     '/cancel — peruuta muokkaus'
                 );
@@ -409,6 +430,201 @@ async function handleStatus(chatId: number): Promise<void> {
 }
 
 // ─────────────────────────────────────────────
+// Now-page update — AI parses voice/text into sections
+// ─────────────────────────────────────────────
+
+const NOW_SYSTEM_PROMPT = `
+You parse a user's message into structured "Now page" sections for a developer studio website.
+
+The Now page has these sections:
+- building: Current projects and what's being worked on (array of strings)
+- learning: Technologies, skills, and concepts being studied (array of strings)
+- reading: Books, articles, documentation being consumed (array of strings)
+- notDoing: Things deliberately being avoided or deprioritized (array of strings)
+- location: Physical location description (single string)
+
+RULES:
+- Input may be Finnish or English. Output always in English.
+- Each array item should be 1-2 sentences max. Concise, direct.
+- Nordic voice: restrained, professional, no hype.
+- If the user doesn't mention a section, keep it empty (empty array or empty string).
+- The location field defaults to "" if not mentioned.
+
+Return ONLY a valid JSON object:
+{
+  "building": ["..."],
+  "learning": ["..."],
+  "reading": ["..."],
+  "notDoing": ["..."],
+  "location": "..."
+}
+`;
+
+/** Use AI to parse raw text into NowPageData sections */
+async function parseNowPageContent(rawText: string): Promise<NowPageData> {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) throw new Error('OPENAI_API_KEY not set');
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+            model: 'gpt-4o',
+            response_format: { type: 'json_object' },
+            messages: [
+                { role: 'system', content: NOW_SYSTEM_PROMPT },
+                { role: 'user', content: rawText },
+            ],
+            temperature: 0.3,
+        }),
+    });
+
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(`OpenAI error: ${JSON.stringify(err)}`);
+    }
+
+    const data = await res.json();
+    const parsed = JSON.parse(data.choices[0].message.content);
+
+    const today = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    return {
+        building: parsed.building ?? [],
+        learning: parsed.learning ?? [],
+        reading: parsed.reading ?? [],
+        notDoing: parsed.notDoing ?? [],
+        location: parsed.location ?? '',
+        updatedAt: today,
+    };
+}
+
+/** Track users who are in "now update" mode */
+// We reuse UserState with mode = 'now_update' stored in a simple variable
+// Since we're serverless, we track this via a special pendingPost with a known ID
+const NOW_UPDATE_MODE_PREFIX = 'now_';
+
+async function handleNowUpdate(chatId: number, userId: number, message: Record<string, unknown>): Promise<void> {
+    try {
+        let rawText = '';
+
+        if (message.voice) {
+            await sendMessage(chatId, '🎙 Transcribing...');
+            const fileId = (message.voice as Record<string, unknown>).file_id as string;
+            rawText = await transcribeVoice(fileId);
+        } else if (message.text) {
+            rawText = message.text as string;
+        } else {
+            await sendMessage(chatId, 'Lähetä teksti- tai ääniviesti Now-sivun päivittämiseksi.');
+            return;
+        }
+
+        await sendMessage(chatId, '✍️ Parsing Now content...');
+        const nowData = await parseNowPageContent(rawText);
+
+        // Build preview
+        const sections = [
+            { emoji: '🔨', label: 'Building', items: nowData.building },
+            { emoji: '📚', label: 'Learning', items: nowData.learning },
+            { emoji: '📖', label: 'Reading', items: nowData.reading },
+            { emoji: '🚫', label: 'Not doing', items: nowData.notDoing },
+        ];
+
+        let preview = '📌 *Now-sivun esikatselu*\n\n';
+        for (const s of sections) {
+            if (s.items.length > 0) {
+                preview += `${s.emoji} *${s.label}*\n`;
+                for (const item of s.items) {
+                    preview += `— ${item}\n`;
+                }
+                preview += '\n';
+            }
+        }
+        if (nowData.location) {
+            preview += `📍 *Location*\n${nowData.location}\n\n`;
+        }
+        preview += `🕐 Updated: ${nowData.updatedAt}`;
+
+        // Store now data temporarily in a pendingPost-like doc for the callback
+        const nowPendingId = `${NOW_UPDATE_MODE_PREFIX}${Date.now()}`;
+
+        // We'll encode the NowPageData as JSON in the content field of a pseudo-pendingPost
+        const pseudoPost: PendingPost = {
+            pendingId: nowPendingId,
+            slug: 'now-update',
+            title: 'Now Page Update',
+            date: new Date().toISOString().split('T')[0],
+            meta_description: '',
+            content: JSON.stringify(nowData),
+            chatId,
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+            tags: [],
+            imageFileIds: [],
+        };
+        await savePendingPost(pseudoPost);
+
+        const replyMarkup = {
+            inline_keyboard: [
+                [
+                    { text: '✅ Päivitä Now', callback_data: `now_publish:${nowPendingId}` },
+                    { text: '❌ Peruuta', callback_data: `now_cancel:${nowPendingId}` },
+                ],
+            ],
+        };
+
+        await sendTelegramMessage({ chatId, text: preview, replyMarkup });
+
+    } catch (err) {
+        console.error('[koivu-voice] now update error', err);
+        await sendMessage(chatId, `❌ Now-päivitys epäonnistui: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+}
+
+// ─────────────────────────────────────────────
+// Delete published post — list and delete
+// ─────────────────────────────────────────────
+
+async function handleDeleteMenu(chatId: number): Promise<void> {
+    try {
+        const logs = await listPublishedLogs();
+
+        if (logs.length === 0) {
+            await sendMessage(chatId, '📭 Ei julkaistuja postauksia poistettavaksi.');
+            return;
+        }
+
+        // Show up to 10 most recent
+        const recent = logs.slice(0, 10);
+        await sendMessage(chatId, `🗑 *Poista postaus*\n\nValitse poistettava (${logs.length} julkaistua):\n`);
+
+        for (const log of recent) {
+            const dateStr = log.publishedAt
+                ? new Date(log.publishedAt).toLocaleDateString('fi-FI')
+                : '?';
+
+            const replyMarkup = {
+                inline_keyboard: [
+                    [{ text: '🗑 Poista tämä', callback_data: `delete_log:${log.slug}` }],
+                ],
+            };
+
+            await sendTelegramMessage({
+                chatId,
+                text: `📰 *${log.title}*\n📅 ${dateStr}`,
+                replyMarkup,
+            });
+        }
+    } catch (err) {
+        console.error('[koivu-voice] delete menu error', err);
+        await sendMessage(chatId, '❌ Postausten haku epäonnistui.');
+    }
+}
+
+// ─────────────────────────────────────────────
 // Handle callback queries (button clicks)
 // ─────────────────────────────────────────────
 
@@ -427,13 +643,71 @@ async function handleCallbackQuery(callbackQuery: Record<string, unknown>): Prom
         return;
     }
 
-    const [action, pendingId] = data.split(':');
+    // Split on first colon only (slug may not contain colons, but be safe)
+    const colonIdx = data.indexOf(':');
+    const action = colonIdx >= 0 ? data.slice(0, colonIdx) : data;
+    const actionArg = colonIdx >= 0 ? data.slice(colonIdx + 1) : '';
 
-    if (!pendingId) {
+    if (!actionArg) {
         await answerCallbackQuery(queryId, '⚠️ Invalid action');
         return;
     }
 
+    // ── Now-page callbacks ──
+    if (action === 'now_publish' || action === 'now_cancel') {
+        try {
+            if (action === 'now_cancel') {
+                await answerCallbackQuery(queryId, '❌ Peruutettu');
+                if (messageId) await removeInlineKeyboard(chatId, messageId);
+                await deletePendingPost(actionArg);
+                await sendMessage(chatId, '❌ Now-päivitys peruutettu.');
+                return;
+            }
+
+            // now_publish
+            await answerCallbackQuery(queryId, '📦 Saving...');
+            if (messageId) await removeInlineKeyboard(chatId, messageId);
+
+            const pseudoPost = await getPendingPost(actionArg);
+            if (!pseudoPost) {
+                await sendMessage(chatId, '⚠️ Now-dataa ei löytynyt.');
+                return;
+            }
+
+            const nowData: NowPageData = JSON.parse(pseudoPost.content);
+            await saveNowPage(nowData);
+            await deletePendingPost(actionArg);
+
+            await sendMessage(
+                chatId,
+                '✅ *Now-sivu päivitetty!*\n\n' +
+                `🕐 ${nowData.updatedAt}\n\n` +
+                '[Katso Now-sivu](https://koivulabs.com/now)'
+            );
+        } catch (err) {
+            console.error('[koivu-voice] now callback error', err);
+            await sendMessage(chatId, `❌ Now-virhe: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+        return;
+    }
+
+    // ── Delete log callback ──
+    if (action === 'delete_log') {
+        try {
+            await answerCallbackQuery(queryId, '🗑 Deleting...');
+            if (messageId) await removeInlineKeyboard(chatId, messageId);
+
+            await deleteLogFromFirestore(actionArg);
+            await sendMessage(chatId, `✅ Postaus \`${actionArg}\` poistettu Firestoresta.`);
+        } catch (err) {
+            console.error('[koivu-voice] delete log error', err);
+            await sendMessage(chatId, `❌ Poisto epäonnistui: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+        return;
+    }
+
+    // ── Standard post callbacks (publish/edit/cancel) ──
+    const pendingId = actionArg;
     const post = await getPendingPost(pendingId);
 
     // Duplicate click guard
