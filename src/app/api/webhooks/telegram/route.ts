@@ -368,9 +368,21 @@ async function handleCallbackQuery(callbackQuery: Record<string, unknown>): Prom
                             return { base64: photo.base64, extension: photo.extension };
                         })
                     );
+
+                    // Build image paths and inject into post content
+                    // so BOTH GitHub and Firestore get the image references
+                    const imagePaths = images.map((img, i) => {
+                        const imageName = `${post.date}-${post.slug}-${i + 1}.${img.extension}`;
+                        return `/logbook/images/${imageName}`;
+                    });
+                    const imageMarkdown = imagePaths
+                        .map((p, i) => `![${post.title} - image ${i + 1}](${p})`)
+                        .join('\n\n');
+                    post.content = post.content + '\n\n' + imageMarkdown;
                 }
 
                 // Publish: GitHub (with images) + Firestore in parallel
+                // Both now receive post with image references in content
                 const [{ url, path }] = await Promise.all([
                     commitToGitHub(post, images),
                     saveLogToFirestore(post),

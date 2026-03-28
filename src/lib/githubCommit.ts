@@ -67,19 +67,11 @@ export async function commitToGitHub(
         }
     }
 
-    // 2. Inject image references into post content
-    const postWithImages = { ...post };
-    if (imagePaths.length > 0) {
-        const imageMarkdown = imagePaths
-            .map((p, i) => `![${post.title} - image ${i + 1}](${p})`)
-            .join('\n\n');
-        postWithImages.content = post.content + '\n\n' + imageMarkdown;
-    }
-
-    // 3. Commit the markdown file
+    // 2. Commit the markdown file
+    // Note: image references are already injected into post.content by the caller
     const filename = `${post.date}-${post.slug}.md`;
     const path = `src/content/logbook/${filename}`;
-    const markdown = formatMarkdown(postWithImages);
+    const markdown = formatMarkdown(post);
     const content = Buffer.from(markdown, 'utf-8').toString('base64');
 
     const url = await commitFile(
