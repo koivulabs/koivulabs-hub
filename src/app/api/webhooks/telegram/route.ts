@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { transcribeVoice } from '@/lib/transcribeVoice';
 import { refineToLogbookPost } from '@/lib/koivuVoice';
 import { commitToGitHub, ImageAttachment } from '@/lib/githubCommit';
-import { saveLogToFirestore, saveNowPage, NowPageData, deleteLogFromFirestore, listPublishedLogs } from '@/lib/firestoreRest';
+import { saveLogToFirestore, saveNowPage, backupNowPage, restoreNowBackup, NowPageData, deleteLogFromFirestore, listPublishedLogs } from '@/lib/firestoreRest';
 import { downloadTelegramPhoto } from '@/lib/telegramPhoto';
 import {
     savePendingPost,
@@ -654,6 +654,30 @@ async function handleCallbackQuery(callbackQuery: Record<string, unknown>): Prom
     }
 
     // ── Now-page callbacks ──
+    if (action === 'now_restore') {
+        try {
+            await answerCallbackQuery(queryId, '↩️ Restoring...');
+            if (messageId) await removeInlineKeyboard(chatId, messageId);
+
+            const restored = await restoreNowBackup();
+            if (!restored) {
+                await sendMessage(chatId, '⚠️ Ei edellistä versiota palautettavaksi.');
+                return;
+            }
+
+            await sendMessage(
+                chatId,
+                '↩️ *Now-sivu palautettu!*\n\n' +
+                `🕐 Palautettu versio: ${restored.updatedAt}\n\n` +
+                '[Katso Now-sivu](https://koivulabs.com/now)'
+            );
+        } catch (err) {
+            console.error('[koivu-voice] now restore error', err);
+            await sendMessage(chatId, `❌ Palautus epäonnistui: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+        return;
+    }
+
     if (action === 'now_publish' || action === 'now_cancel') {
         try {
             if (action === 'now_cancel') {
@@ -675,15 +699,28 @@ async function handleCallbackQuery(callbackQuery: Record<string, unknown>): Prom
             }
 
             const nowData: NowPageData = JSON.parse(pseudoPost.content);
+
+            // Back up current Now page before overwriting
+            await backupNowPage();
+
             await saveNowPage(nowData);
             await deletePendingPost(actionArg);
 
-            await sendMessage(
+            const confirmMarkup = {
+                inline_keyboard: [
+                    [{ text: '↩️ Palauta edellinen', callback_data: 'now_restore:1' }],
+                ],
+            };
+
+            await sendTelegramMessage({
                 chatId,
-                '✅ *Now-sivu päivitetty!*\n\n' +
-                `🕐 ${nowData.updatedAt}\n\n` +
-                '[Katso Now-sivu](https://koivulabs.com/now)'
-            );
+                text:
+                    '✅ *Now-sivu päivitetty!*\n\n' +
+                    `🕐 ${nowData.updatedAt}\n\n` +
+                    '[Katso Now-sivu](https://koivulabs.com/now)\n\n' +
+                    '_Edellinen versio tallennettu. Voit palauttaa sen alla olevalla napilla._',
+                replyMarkup: confirmMarkup,
+            });
         } catch (err) {
             console.error('[koivu-voice] now callback error', err);
             await sendMessage(chatId, `❌ Now-virhe: ${err instanceof Error ? err.message : 'Unknown error'}`);

@@ -69,6 +69,67 @@ export interface NowPageData {
     updatedAt: string;
 }
 
+/** Back up current Now page before overwriting */
+export async function backupNowPage(): Promise<void> {
+    const current = await getNowPage();
+    if (!current) return; // nothing to back up
+
+    const url = docUrl('siteContent', 'now_backup');
+    const toArray = (items: string[]) => ({
+        arrayValue: { values: items.map(s => ({ stringValue: s })) },
+    });
+
+    const body = {
+        fields: {
+            building:  toArray(current.building),
+            learning:  toArray(current.learning),
+            reading:   toArray(current.reading),
+            notDoing:  toArray(current.notDoing),
+            location:  { stringValue: current.location },
+            updatedAt: { stringValue: current.updatedAt },
+        },
+    };
+
+    const res = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(`Firestore backup now error: ${JSON.stringify(err)}`);
+    }
+}
+
+/** Restore Now page from backup */
+export async function restoreNowBackup(): Promise<NowPageData | null> {
+    const url = docUrl('siteContent', 'now_backup');
+
+    const res = await fetch(url);
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const f = data.fields;
+    if (!f) return null;
+
+    const toStrings = (field: { arrayValue?: { values?: Array<{ stringValue: string }> } }) =>
+        field?.arrayValue?.values?.map(v => v.stringValue) ?? [];
+
+    const backup: NowPageData = {
+        building:  toStrings(f.building),
+        learning:  toStrings(f.learning),
+        reading:   toStrings(f.reading),
+        notDoing:  toStrings(f.notDoing),
+        location:  f.location?.stringValue ?? '',
+        updatedAt: f.updatedAt?.stringValue ?? '',
+    };
+
+    // Restore: save backup as current
+    await saveNowPage(backup);
+    return backup;
+}
+
 export async function saveNowPage(data: NowPageData): Promise<void> {
     const url = docUrl('siteContent', 'now');
 
