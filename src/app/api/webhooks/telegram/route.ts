@@ -2,7 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { transcribeVoice } from '@/lib/transcribeVoice';
 import { refineToLogbookPost } from '@/lib/koivuVoice';
 import { commitToGitHub, ImageAttachment } from '@/lib/githubCommit';
-import { saveLogToFirestore, saveNowPage, backupNowPage, restoreNowBackup, NowPageData, deleteLogFromFirestore, listPublishedLogs } from '@/lib/firestoreRest';
+import {
+    saveLogToFirestore,
+    saveNowPage, backupNowPage, restoreNowBackup, NowPageData,
+    deleteLogFromFirestore, listPublishedLogs,
+    saveInvoiceSettings, getInvoiceSettings, InvoiceSettings,
+    saveClient, getClient, listClients, ClientInfo,
+    saveInvoice, getInvoice, listInvoices, getOrCreateOpenInvoice, Invoice,
+    saveTimeEntry, listTimeEntriesByInvoice, TimeEntry,
+} from '@/lib/firestoreRest';
 import { downloadTelegramPhoto } from '@/lib/telegramPhoto';
 import {
     savePendingPost,
@@ -88,11 +96,27 @@ async function removeInlineKeyboard(chatId: number, messageId: number): Promise<
 const MAIN_MENU_KEYBOARD = {
     keyboard: [
         [{ text: '📝 Uusi postaus' }, { text: '📋 Draftit' }],
-        [{ text: '📌 Now' }, { text: '🗑 Poista' }],
+        [{ text: '⏱ Kirjaa työ' }, { text: '⚙️ Työkalut' }],
         [{ text: '📊 Status' }, { text: '❓ Ohje' }],
     ],
     resize_keyboard: true,
     is_persistent: true,
+};
+
+const TOOLS_INLINE_MENU = {
+    inline_keyboard: [
+        [
+            { text: '📌 Now-sivu', callback_data: 'tools:now' },
+            { text: '🗑 Poista postaus', callback_data: 'tools:delete' },
+        ],
+        [
+            { text: '🧾 Laskut', callback_data: 'tools:invoices' },
+            { text: '📇 Asiakkaat', callback_data: 'tools:clients' },
+        ],
+        [
+            { text: '👤 Omat tiedot', callback_data: 'tools:settings' },
+        ],
+    ],
 };
 
 // ─────────────────────────────────────────────
@@ -171,6 +195,19 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
             return;
         }
 
+        // Route time entry input
+        if (userState.pendingId === 'time_input') {
+            await clearUserState(userId);
+            await handleTimeEntry(chatId, userId, message);
+            return;
+        }
+
+        // Route setup wizard steps
+        if (userState.pendingId.startsWith('setup_')) {
+            await handleSetupStep(chatId, userId, message, userState.pendingId);
+            return;
+        }
+
         await handleEditInput(chatId, userId, message, userState.pendingId);
         return;
     }
@@ -220,14 +257,18 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
                 return;
             }
 
-            if (rawText === '📌 Now') {
-                await sendMessage(chatId, '📌 Lähetä teksti- tai ääniviesti, jolla päivitän Now-sivun.\n\nKerro mitä rakennat, opit, luet, et tee, ja missä olet.');
-                await setUserState(userId, { mode: 'editing', pendingId: 'now_input' });
+            if (rawText === '⏱ Kirjaa työ') {
+                await sendMessage(chatId, '⏱ Sanele tai kirjoita mitä teit.\n\nEsim: _"Tein tänään 4h nettisivuja Hautsalolle Saarijärvellä"_');
+                await setUserState(userId, { mode: 'editing', pendingId: 'time_input' });
                 return;
             }
 
-            if (rawText === '🗑 Poista') {
-                await handleDeleteMenu(chatId);
+            if (rawText === '⚙️ Työkalut') {
+                await sendTelegramMessage({
+                    chatId,
+                    text: '⚙️ *Työkalut*\n\nValitse toiminto:',
+                    replyMarkup: TOOLS_INLINE_MENU,
+                });
                 return;
             }
 
@@ -240,10 +281,10 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
                     '📷 *Kuva + caption* — kuva liitetään postaukseen\n\n' +
                     '✅ Julkaise / ✏️ Muokkaa / ❌ Hylkää napeilla\n\n' +
                     '📋 *Draftit* — keskeneräiset postaukset\n' +
-                    '📌 *Now* — päivitä Now-sivu\n' +
-                    '🗑 *Poista* — poista julkaistu postaus\n' +
+                    '⏱ *Kirjaa työ* — sanele tunnit ja työ\n' +
+                    '⚙️ *Työkalut* — Now-sivu, poista, laskut, asiakkaat, asetukset\n' +
                     '📊 *Status* — sivuston tilanne\n' +
-                    '/cancel — peruuta muokkaus'
+                    '/cancel — peruuta'
                 );
                 return;
             }
@@ -625,6 +666,500 @@ async function handleDeleteMenu(chatId: number): Promise<void> {
 }
 
 // ─────────────────────────────────────────────
+// Time entry — AI parser
+// ─────────────────────────────────────────────
+
+const TIME_ENTRY_SYSTEM_PROMPT = `
+You parse a user's message about work done into a structured time entry.
+
+Extract:
+- client: Company or person name (string). If unclear, use "Ei asiakasta".
+- description: What was done (string, 1-2 sentences, Finnish or English as input)
+- location: Where the work was done (string, "" if not mentioned)
+- date: Date of work (YYYY-MM-DD). If "today" or not mentioned, use TODAY_DATE.
+- hours: Hours worked (number, can be decimal like 1.5). 0 if not mentioned.
+- pricingModel: "hourly" if hourly rate mentioned, "fixed" if total/project price mentioned, "none" if no price discussed
+- hourlyRate: Hourly rate in EUR (number, 0 if not hourly)
+- fixedPrice: Fixed/project price in EUR (number, 0 if not fixed)
+
+RULES:
+- Input is Finnish or English. Keep description in the ORIGINAL language.
+- "satanen tunti" = 100 EUR/h, "viiskymppiä tunti" = 50 EUR/h
+- "4h" or "4 tuntia" = 4 hours
+- Be generous with parsing: "pari tuntia" = 2, "puoli päivää" = 4
+- If hours AND hourly rate given, calculate totalPrice = hours * hourlyRate
+- If fixed price given, totalPrice = fixedPrice
+- If no price info, totalPrice = 0
+
+Return ONLY valid JSON:
+{
+  "client": "...",
+  "description": "...",
+  "location": "...",
+  "date": "YYYY-MM-DD",
+  "hours": 0,
+  "pricingModel": "hourly|fixed|none",
+  "hourlyRate": 0,
+  "fixedPrice": 0,
+  "totalPrice": 0
+}
+`;
+
+interface ParsedTimeEntry {
+    client: string;
+    description: string;
+    location: string;
+    date: string;
+    hours: number;
+    pricingModel: 'hourly' | 'fixed' | 'none';
+    hourlyRate: number;
+    fixedPrice: number;
+    totalPrice: number;
+}
+
+async function parseTimeEntry(rawText: string): Promise<ParsedTimeEntry> {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) throw new Error('OPENAI_API_KEY not set');
+
+    const today = new Date().toISOString().split('T')[0];
+    const prompt = TIME_ENTRY_SYSTEM_PROMPT.replace('TODAY_DATE', today);
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+            model: 'gpt-4o',
+            response_format: { type: 'json_object' },
+            messages: [
+                { role: 'system', content: prompt },
+                { role: 'user', content: rawText },
+            ],
+            temperature: 0.2,
+        }),
+    });
+
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(`OpenAI error: ${JSON.stringify(err)}`);
+    }
+
+    const data = await res.json();
+    return JSON.parse(data.choices[0].message.content) as ParsedTimeEntry;
+}
+
+// ─────────────────────────────────────────────
+// Time entry handler
+// ─────────────────────────────────────────────
+
+async function handleTimeEntry(chatId: number, _userId: number, message: Record<string, unknown>): Promise<void> {
+    try {
+        let rawText = '';
+
+        if (message.voice) {
+            await sendMessage(chatId, '🎙 Transcribing...');
+            const fileId = (message.voice as Record<string, unknown>).file_id as string;
+            rawText = await transcribeVoice(fileId);
+        } else if (message.text) {
+            rawText = message.text as string;
+        } else {
+            await sendMessage(chatId, 'Lähetä teksti- tai ääniviesti työn kirjaamiseksi.');
+            return;
+        }
+
+        await sendMessage(chatId, '✍️ Parsing...');
+        const parsed = await parseTimeEntry(rawText);
+
+        // Slugify client name for ID
+        const clientId = parsed.client
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9äöå-]/g, '')
+            .replace(/-+/g, '-');
+
+        // Check if client exists, apply defaults if so
+        const existingClient = await getClient(clientId);
+        if (existingClient && parsed.pricingModel === 'none') {
+            // Use client's default pricing
+            parsed.pricingModel = existingClient.pricingModel;
+            parsed.hourlyRate = existingClient.defaultHourlyRate;
+            if (parsed.pricingModel === 'hourly' && parsed.hours > 0) {
+                parsed.totalPrice = parsed.hours * parsed.hourlyRate;
+            }
+        }
+
+        // Build preview
+        let preview = '⏱ *Työn esikatselu*\n\n';
+        preview += `👤 *Asiakas:* ${parsed.client}\n`;
+        preview += `🔨 *Kuvaus:* ${parsed.description}\n`;
+        if (parsed.location) preview += `📍 *Paikka:* ${parsed.location}\n`;
+        preview += `📅 *Päivä:* ${parsed.date}\n`;
+        if (parsed.hours > 0) preview += `⏱ *Tunnit:* ${parsed.hours}h\n`;
+
+        if (parsed.pricingModel === 'hourly') {
+            preview += `💰 *Hinta:* ${parsed.hourlyRate}€/h`;
+            if (parsed.totalPrice > 0) preview += ` = *${parsed.totalPrice}€*`;
+            preview += '\n';
+        } else if (parsed.pricingModel === 'fixed') {
+            preview += `💰 *Kiinteä hinta:* ${parsed.fixedPrice}€\n`;
+        } else {
+            preview += '💰 _Ei hintatietoa_\n';
+        }
+
+        if (existingClient) {
+            preview += `\n_Asiakas tunnettu (oletushinta: ${existingClient.defaultHourlyRate}€/h)_`;
+        }
+
+        // Store parsed data temporarily
+        const tempId = `te_${Date.now()}`;
+        const pseudoPost: PendingPost = {
+            pendingId: tempId,
+            slug: 'time-entry',
+            title: parsed.client,
+            date: parsed.date,
+            meta_description: clientId,  // store clientId here
+            content: JSON.stringify(parsed),
+            chatId,
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+            tags: [],
+            imageFileIds: [],
+        };
+        await savePendingPost(pseudoPost);
+
+        const replyMarkup = {
+            inline_keyboard: [
+                [
+                    { text: '✅ Tallenna', callback_data: `te_save:${tempId}` },
+                    { text: '❌ Hylkää', callback_data: `te_cancel:${tempId}` },
+                ],
+            ],
+        };
+
+        await sendTelegramMessage({ chatId, text: preview, replyMarkup });
+
+    } catch (err) {
+        console.error('[koivu-voice] time entry error', err);
+        await sendMessage(chatId, `❌ Kirjausvirhe: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+}
+
+// ─────────────────────────────────────────────
+// Tools callbacks — route from inline menu
+// ─────────────────────────────────────────────
+
+async function handleToolsCallback(chatId: number, userId: number, tool: string, messageId?: number): Promise<void> {
+    if (messageId) await removeInlineKeyboard(chatId, messageId);
+
+    switch (tool) {
+        case 'now':
+            await sendMessage(chatId, '📌 Lähetä teksti- tai ääniviesti, jolla päivitän Now-sivun.\n\nKerro mitä rakennat, opit, luet, et tee, ja missä olet.');
+            await setUserState(userId, { mode: 'editing', pendingId: 'now_input' });
+            break;
+
+        case 'delete':
+            await handleDeleteMenu(chatId);
+            break;
+
+        case 'invoices':
+            await handleInvoiceMenu(chatId);
+            break;
+
+        case 'clients':
+            await handleClientsMenu(chatId);
+            break;
+
+        case 'settings':
+            await handleSettingsStart(chatId, userId);
+            break;
+    }
+}
+
+// ─────────────────────────────────────────────
+// Invoice management
+// ─────────────────────────────────────────────
+
+async function handleInvoiceMenu(chatId: number): Promise<void> {
+    try {
+        const openInvoices = await listInvoices('open');
+
+        if (openInvoices.length === 0) {
+            await sendMessage(chatId, '🧾 Ei avoimia laskuja.\n\nKirjaa työtä ⏱-napilla, niin laskut syntyvät automaattisesti.');
+            return;
+        }
+
+        await sendMessage(chatId, `🧾 *Avoimet laskut* (${openInvoices.length} kpl)\n`);
+
+        for (const inv of openInvoices) {
+            const entries = await listTimeEntriesByInvoice(inv.id);
+            const totalHours = entries.reduce((sum, e) => sum + e.hours, 0);
+            const totalPrice = entries.reduce((sum, e) => sum + e.totalPrice, 0);
+
+            const text =
+                `👤 *${inv.client}*\n` +
+                `📊 ${entries.length} kirjausta, ${totalHours}h\n` +
+                `💰 ${totalPrice > 0 ? totalPrice + '€' : 'Ei hintaa'}\n` +
+                `📅 Avattu: ${new Date(inv.createdAt).toLocaleDateString('fi-FI')}`;
+
+            const replyMarkup = {
+                inline_keyboard: [
+                    [
+                        { text: '📋 Rivit', callback_data: `inv_detail:${inv.id}` },
+                        { text: '📄 Luo PDF', callback_data: `inv_pdf:${inv.id}` },
+                    ],
+                    [
+                        { text: '🔒 Sulje lasku', callback_data: `inv_close:${inv.id}` },
+                    ],
+                ],
+            };
+
+            await sendTelegramMessage({ chatId, text, replyMarkup });
+        }
+    } catch (err) {
+        console.error('[koivu-voice] invoice menu error', err);
+        await sendMessage(chatId, '❌ Laskujen haku epäonnistui.');
+    }
+}
+
+// ─────────────────────────────────────────────
+// Client management
+// ─────────────────────────────────────────────
+
+async function handleClientsMenu(chatId: number): Promise<void> {
+    try {
+        const clients = await listClients();
+
+        if (clients.length === 0) {
+            await sendMessage(chatId, '📇 Ei tallennettuja asiakkaita.\n\nAsiakkaat luodaan automaattisesti kun kirjaat työtä.');
+            return;
+        }
+
+        let text = `📇 *Asiakkaat* (${clients.length} kpl)\n\n`;
+
+        for (const c of clients) {
+            text += `👤 *${c.name}*\n`;
+            if (c.businessId) text += `📋 ${c.businessId}\n`;
+            if (c.pricingModel === 'hourly' && c.defaultHourlyRate > 0) {
+                text += `💰 ${c.defaultHourlyRate}€/h\n`;
+            }
+            text += '\n';
+        }
+
+        await sendMessage(chatId, text);
+    } catch (err) {
+        console.error('[koivu-voice] clients menu error', err);
+        await sendMessage(chatId, '❌ Asiakkaiden haku epäonnistui.');
+    }
+}
+
+// ─────────────────────────────────────────────
+// Own details setup wizard
+// ─────────────────────────────────────────────
+
+const SETUP_FIELDS: Array<{ key: keyof InvoiceSettings; prompt: string; emoji: string }> = [
+    { key: 'companyName', prompt: 'Yrityksen nimi?', emoji: '🏢' },
+    { key: 'businessId', prompt: 'Y-tunnus?', emoji: '📋' },
+    { key: 'address', prompt: 'Osoite?', emoji: '📍' },
+    { key: 'iban', prompt: 'Tilinumero (IBAN)?', emoji: '🏦' },
+    { key: 'email', prompt: 'Sähköposti laskuihin?', emoji: '📧' },
+    { key: 'phone', prompt: 'Puhelin? (tai "ohita")', emoji: '📞' },
+    { key: 'defaultHourlyRate', prompt: 'Oletus-tuntihinta (€)? (tai "ohita")', emoji: '💰' },
+];
+
+async function handleSettingsStart(chatId: number, userId: number): Promise<void> {
+    // Load existing settings to show current values
+    const existing = await getInvoiceSettings();
+    if (existing) {
+        let text = '👤 *Nykyiset laskutustiedot:*\n\n';
+        text += `🏢 ${existing.companyName || '-'}\n`;
+        text += `📋 ${existing.businessId || '-'}\n`;
+        text += `📍 ${existing.address || '-'}\n`;
+        text += `🏦 ${existing.iban || '-'}\n`;
+        text += `📧 ${existing.email || '-'}\n`;
+        text += `📞 ${existing.phone || '-'}\n`;
+        text += `💰 ${existing.defaultHourlyRate > 0 ? existing.defaultHourlyRate + '€/h' : '-'}\n`;
+
+        const replyMarkup = {
+            inline_keyboard: [
+                [
+                    { text: '✏️ Muokkaa', callback_data: 'setup_start:1' },
+                    { text: '✅ OK', callback_data: 'setup_start:0' },
+                ],
+            ],
+        };
+
+        await sendTelegramMessage({ chatId, text, replyMarkup });
+    } else {
+        await sendMessage(chatId, '👤 *Laskutustietojen asetus*\n\nKäydään tiedot läpi yksi kerrallaan.');
+        await promptSetupField(chatId, userId, 0);
+    }
+}
+
+async function promptSetupField(chatId: number, userId: number, fieldIndex: number): Promise<void> {
+    if (fieldIndex >= SETUP_FIELDS.length) {
+        // All done — save and show summary
+        await clearUserState(userId);
+        const settings = await getInvoiceSettings();
+        if (settings) {
+            await sendMessage(chatId, '✅ *Laskutustiedot tallennettu!*');
+        }
+        return;
+    }
+
+    const field = SETUP_FIELDS[fieldIndex];
+    await sendMessage(chatId, `${field.emoji} ${field.prompt}`);
+    await setUserState(userId, { mode: 'editing', pendingId: `setup_${fieldIndex}` });
+}
+
+async function handleSetupStep(chatId: number, userId: number, message: Record<string, unknown>, pendingId: string): Promise<void> {
+    const fieldIndex = parseInt(pendingId.replace('setup_', ''), 10);
+    if (isNaN(fieldIndex) || fieldIndex >= SETUP_FIELDS.length) {
+        await clearUserState(userId);
+        return;
+    }
+
+    const rawText = (message.text as string) ?? '';
+
+    // Load or create settings
+    const settings: InvoiceSettings = (await getInvoiceSettings()) ?? {
+        companyName: '', businessId: '', address: '',
+        iban: '', email: '', phone: '', defaultHourlyRate: 0,
+    };
+
+    const field = SETUP_FIELDS[fieldIndex];
+    const skip = rawText.toLowerCase() === 'ohita' || rawText === '-';
+
+    if (!skip) {
+        if (field.key === 'defaultHourlyRate') {
+            const rate = parseFloat(rawText.replace(/[€,]/g, '').trim());
+            settings.defaultHourlyRate = isNaN(rate) ? 0 : rate;
+        } else {
+            (settings[field.key] as string) = rawText;
+        }
+    }
+
+    await saveInvoiceSettings(settings);
+    await promptSetupField(chatId, userId, fieldIndex + 1);
+}
+
+// ─────────────────────────────────────────────
+// Telegram sendDocument helper (for PDF)
+// ─────────────────────────────────────────────
+
+async function sendTelegramDocument(chatId: number, content: string, filename: string, caption: string): Promise<void> {
+    const encoder = new TextEncoder();
+    const uint8 = encoder.encode(content);
+
+    const formData = new FormData();
+    formData.append('chat_id', chatId.toString());
+    formData.append('caption', caption);
+    formData.append('parse_mode', 'Markdown');
+    formData.append('document', new Blob([uint8], { type: 'text/html' }), filename);
+
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+        method: 'POST',
+        body: formData,
+    });
+}
+
+// ─────────────────────────────────────────────
+// Generate invoice HTML & send as file
+// ─────────────────────────────────────────────
+
+async function generateAndSendInvoice(chatId: number, invoiceId: string): Promise<void> {
+    const inv = await getInvoice(invoiceId);
+    if (!inv) {
+        await sendMessage(chatId, '⚠️ Laskua ei löytynyt.');
+        return;
+    }
+
+    const entries = await listTimeEntriesByInvoice(inv.id);
+    const settings = await getInvoiceSettings();
+    const client = await getClient(inv.clientId);
+
+    const totalHours = entries.reduce((sum, e) => sum + e.hours, 0);
+    const totalPrice = entries.reduce((sum, e) => sum + e.totalPrice, 0);
+
+    const today = new Date().toLocaleDateString('fi-FI');
+    const dueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('fi-FI');
+
+    // Build HTML invoice
+    const rows = entries.map(e => {
+        const priceStr = e.pricingModel === 'hourly'
+            ? `${e.hours}h × ${e.hourlyRate}€ = ${e.totalPrice}€`
+            : e.pricingModel === 'fixed'
+                ? `${e.fixedPrice}€`
+                : '-';
+        return `<tr>
+            <td>${e.date}</td>
+            <td>${e.description}</td>
+            <td>${e.hours > 0 ? e.hours + 'h' : '-'}</td>
+            <td style="text-align:right">${priceStr}</td>
+        </tr>`;
+    }).join('\n');
+
+    const html = `<!DOCTYPE html>
+<html lang="fi">
+<head><meta charset="UTF-8"><title>Lasku — ${inv.client}</title>
+<style>
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #1a1a1a; }
+  h1 { font-size: 28px; margin-bottom: 4px; }
+  .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
+  .party { flex: 1; }
+  .party h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; color: #666; }
+  .party p { margin: 2px 0; font-size: 14px; }
+  .meta { margin-bottom: 30px; }
+  .meta span { margin-right: 30px; font-size: 14px; color: #444; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th { background: #f0f0f0; text-align: left; padding: 10px; font-size: 13px; text-transform: uppercase; color: #555; }
+  td { padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+  .total { font-size: 20px; text-align: right; margin-top: 20px; padding-top: 16px; border-top: 2px solid #1a1a1a; }
+  .footer { margin-top: 40px; font-size: 12px; color: #888; }
+</style></head>
+<body>
+  <h1>LASKU</h1>
+  <div class="meta">
+    <span>📅 Päivä: ${today}</span>
+    <span>📅 Eräpäivä: ${dueDate}</span>
+    <span>📄 ${inv.id}</span>
+  </div>
+  <div class="header">
+    <div class="party">
+      <h3>Lähettäjä</h3>
+      <p><strong>${settings?.companyName ?? 'KoivuLabs'}</strong></p>
+      ${settings?.businessId ? `<p>${settings.businessId}</p>` : ''}
+      ${settings?.address ? `<p>${settings.address}</p>` : ''}
+      ${settings?.email ? `<p>${settings.email}</p>` : ''}
+      ${settings?.phone ? `<p>${settings.phone}</p>` : ''}
+    </div>
+    <div class="party">
+      <h3>Vastaanottaja</h3>
+      <p><strong>${inv.client}</strong></p>
+      ${client?.businessId ? `<p>${client.businessId}</p>` : ''}
+      ${client?.address ? `<p>${client.address}</p>` : ''}
+      ${client?.email ? `<p>${client.email}</p>` : ''}
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Päivä</th><th>Kuvaus</th><th>Tunnit</th><th style="text-align:right">Hinta</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="total">
+    ${totalHours > 0 ? `Tunnit yhteensä: ${totalHours}h<br>` : ''}
+    <strong>Yhteensä: ${totalPrice}€</strong>
+    <br><small>ALV 0% (pienyritys / arvonlisäverovelvollinen merkitsee itse)</small>
+  </div>
+  ${settings?.iban ? `<div class="footer"><p>Tilinumero: ${settings.iban}</p><p>Viitenumero: ${inv.id.replace(/[^0-9]/g, '').slice(-8)}</p></div>` : ''}
+</body></html>`;
+
+    const filename = `lasku_${inv.client.replace(/\s+/g, '_')}_${today.replace(/\./g, '-')}.html`;
+
+    await sendTelegramDocument(chatId, html, filename, `🧾 *Lasku: ${inv.client}*\n💰 ${totalPrice}€ | ⏱ ${totalHours}h`);
+}
+
+// ─────────────────────────────────────────────
 // Handle callback queries (button clicks)
 // ─────────────────────────────────────────────
 
@@ -647,6 +1182,176 @@ async function handleCallbackQuery(callbackQuery: Record<string, unknown>): Prom
     const colonIdx = data.indexOf(':');
     const action = colonIdx >= 0 ? data.slice(0, colonIdx) : data;
     const actionArg = colonIdx >= 0 ? data.slice(colonIdx + 1) : '';
+
+    // ── Tools menu (no arg needed) ──
+    if (action === 'tools') {
+        await answerCallbackQuery(queryId);
+        await handleToolsCallback(chatId, userId, actionArg, messageId);
+        return;
+    }
+
+    // ── Setup start callback ──
+    if (action === 'setup_start') {
+        await answerCallbackQuery(queryId);
+        if (messageId) await removeInlineKeyboard(chatId, messageId);
+        if (actionArg === '1') {
+            await promptSetupField(chatId, userId, 0);
+        }
+        return;
+    }
+
+    // ── Time entry callbacks ──
+    if (action === 'te_save') {
+        try {
+            await answerCallbackQuery(queryId, '💾 Saving...');
+            if (messageId) await removeInlineKeyboard(chatId, messageId);
+
+            const pseudoPost = await getPendingPost(actionArg);
+            if (!pseudoPost) {
+                await sendMessage(chatId, '⚠️ Kirjausta ei löytynyt.');
+                return;
+            }
+
+            const parsed: ParsedTimeEntry = JSON.parse(pseudoPost.content);
+            const clientId = pseudoPost.meta_description; // stored clientId
+
+            // Ensure client exists
+            let client = await getClient(clientId);
+            if (!client) {
+                client = {
+                    id: clientId,
+                    name: parsed.client,
+                    businessId: '',
+                    address: '',
+                    email: '',
+                    contactPerson: '',
+                    pricingModel: parsed.pricingModel,
+                    defaultHourlyRate: parsed.hourlyRate,
+                    createdAt: new Date().toISOString(),
+                };
+                await saveClient(client);
+            }
+
+            // Get or create open invoice for this client
+            const invoice = await getOrCreateOpenInvoice(clientId, parsed.client);
+
+            // Create time entry
+            const entryId = `e_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+            const entry: TimeEntry = {
+                id: entryId,
+                invoiceId: invoice.id,
+                client: parsed.client,
+                description: parsed.description,
+                location: parsed.location,
+                date: parsed.date,
+                hours: parsed.hours,
+                pricingModel: parsed.pricingModel,
+                hourlyRate: parsed.hourlyRate,
+                fixedPrice: parsed.fixedPrice,
+                totalPrice: parsed.totalPrice,
+                createdAt: new Date().toISOString(),
+            };
+            await saveTimeEntry(entry);
+
+            // Update invoice totals
+            invoice.entries.push(entryId);
+            invoice.totalHours += parsed.hours;
+            invoice.totalPrice += parsed.totalPrice;
+            await saveInvoice(invoice);
+
+            await deletePendingPost(actionArg);
+
+            await sendMessage(
+                chatId,
+                `✅ *Kirjattu!*\n\n` +
+                `👤 ${parsed.client}\n` +
+                `🔨 ${parsed.description}\n` +
+                `⏱ ${parsed.hours}h` +
+                (parsed.totalPrice > 0 ? ` | 💰 ${parsed.totalPrice}€` : '') +
+                `\n\n📄 Lasku: ${invoice.id} (${invoice.entries.length} kirjausta)`
+            );
+        } catch (err) {
+            console.error('[koivu-voice] te_save error', err);
+            await sendMessage(chatId, `❌ Tallennus epäonnistui: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+        return;
+    }
+
+    if (action === 'te_cancel') {
+        await answerCallbackQuery(queryId, '❌ Hylätty');
+        if (messageId) await removeInlineKeyboard(chatId, messageId);
+        await deletePendingPost(actionArg);
+        await sendMessage(chatId, '❌ Kirjaus hylätty.');
+        return;
+    }
+
+    // ── Invoice callbacks ──
+    if (action === 'inv_detail') {
+        try {
+            await answerCallbackQuery(queryId);
+            if (messageId) await removeInlineKeyboard(chatId, messageId);
+
+            const entries = await listTimeEntriesByInvoice(actionArg);
+            if (entries.length === 0) {
+                await sendMessage(chatId, '📋 Ei kirjauksia tällä laskulla.');
+                return;
+            }
+
+            let text = '📋 *Laskun rivit:*\n\n';
+            for (const e of entries) {
+                text += `📅 ${e.date} — ${e.description}\n`;
+                text += `⏱ ${e.hours}h`;
+                if (e.totalPrice > 0) text += ` | 💰 ${e.totalPrice}€`;
+                text += '\n\n';
+            }
+            await sendMessage(chatId, text);
+        } catch (err) {
+            console.error('[koivu-voice] inv_detail error', err);
+            await sendMessage(chatId, '❌ Rivien haku epäonnistui.');
+        }
+        return;
+    }
+
+    if (action === 'inv_pdf') {
+        try {
+            await answerCallbackQuery(queryId, '📄 Generating...');
+            if (messageId) await removeInlineKeyboard(chatId, messageId);
+            await generateAndSendInvoice(chatId, actionArg);
+        } catch (err) {
+            console.error('[koivu-voice] inv_pdf error', err);
+            await sendMessage(chatId, `❌ PDF-generointi epäonnistui: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+        return;
+    }
+
+    if (action === 'inv_close') {
+        try {
+            await answerCallbackQuery(queryId, '🔒 Closing...');
+            if (messageId) await removeInlineKeyboard(chatId, messageId);
+
+            const inv = await getInvoice(actionArg);
+            if (!inv) {
+                await sendMessage(chatId, '⚠️ Laskua ei löytynyt.');
+                return;
+            }
+
+            inv.status = 'closed';
+            inv.closedAt = new Date().toISOString();
+            await saveInvoice(inv);
+
+            await sendMessage(
+                chatId,
+                `🔒 *Lasku suljettu*\n\n` +
+                `👤 ${inv.client}\n` +
+                `💰 ${inv.totalPrice}€ | ⏱ ${inv.totalHours}h\n\n` +
+                '_Uusi avoin lasku luodaan automaattisesti seuraavalla kirjauksella._'
+            );
+        } catch (err) {
+            console.error('[koivu-voice] inv_close error', err);
+            await sendMessage(chatId, '❌ Laskun sulkeminen epäonnistui.');
+        }
+        return;
+    }
 
     if (!actionArg) {
         await answerCallbackQuery(queryId, '⚠️ Invalid action');
