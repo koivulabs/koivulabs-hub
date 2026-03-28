@@ -11,7 +11,7 @@ The central interface ([/](https://koivulabs.com)) features an interactive mappi
 - **Mission Context**: Directly links to standardized product pages and external instances.
 
 ## 📂 Strategic Sections
-- **[/logbook](https://koivulabs.com/logbook)**: Founder's journey and AI transition logs.
+- **[/logbook](https://koivulabs.com/logbook)**: Founder's journey and AI transition logs. Published via **@koivulabs_bot** on Telegram (voice/text/photo → AI refine → preview & approve → GitHub + Firestore).
 - **[/registry](https://koivulabs.com/registry)**: Complete archive of all lab outputs and experimental missions.
 - **[/about](https://koivulabs.com/about)**: Studio manifesto and "Pragmatic Intelligence" philosophy.
 

@@ -4,6 +4,32 @@ All notable changes to this project are documented here.
 
 ---
 
+## [2.1.0] — 2026-03-28
+
+### Added
+- **Telegram bot preview & approval flow** — Bot no longer publishes automatically. Voice/text messages now show an inline preview with Julkaise/Muokkaa/Hylkaa buttons before publishing.
+- **Callback query handler** — Webhook handles Telegram inline keyboard button clicks (publish, edit, cancel).
+- **Edit mode** — Users can re-record or retype content. Bot re-refines and shows updated preview.
+- **Pending posts in Firestore** — Draft posts stored in `pendingPosts` collection with full state tracking. User editing state tracked in `userState` collection.
+- **Image support** — Photos sent with caption are processed as logbook posts with images. Images committed to `public/logbook/images/` via GitHub API and referenced in markdown.
+- **Telegram photo downloader** — New `telegramPhoto.ts` module downloads photos from Telegram API as base64.
+- **GitHub multi-file commits** — `githubCommit.ts` refactored to support committing images alongside markdown via reusable `commitFile` helper.
+- **Logbook markdown rendering** — `[slug]/page.tsx` now renders markdown images (`![alt](url)` to `<img>`), h2 and h3 headings instead of treating all content as plain text paragraphs.
+
+### Changed
+- **Webhook architecture** — `route.ts` refactored from linear pipeline to interactive state machine with separate handlers for messages, edits, and callback queries.
+- **sendMessage helper** — Extended to support `reply_markup` (inline keyboards). New `sendTelegramMessage` returns message ID for later reference.
+- **PendingPost type** — Extends `LogbookPost` with `pendingId`, `chatId`, `messageId`, `status`, `imageFileIds`.
+
+### New files
+- `src/lib/pendingPost.ts` — Firestore CRUD for pending posts and user state.
+- `src/lib/telegramPhoto.ts` — Telegram photo download helper.
+
+### Infrastructure
+- Firestore security rules updated: added `pendingPosts` and `userState` collection permissions.
+
+---
+
 ## [2.0.0] — 2026-03-06
 
 ### Added
