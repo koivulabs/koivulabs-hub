@@ -106,6 +106,52 @@ export async function getPendingPost(pendingId: string): Promise<PendingPost | n
     };
 }
 
+/** List all pending posts (Firestore REST list query) */
+export async function listPendingPosts(): Promise<PendingPost[]> {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    if (!projectId || !apiKey) throw new Error('Firebase env vars not set');
+
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/pendingPosts?key=${apiKey}`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    if (!data.documents) return [];
+
+    return data.documents.map((doc: { fields: Record<string, unknown> }) => {
+        const f = doc.fields as Record<string, { stringValue?: string; integerValue?: string; arrayValue?: { values?: Array<{ stringValue: string }> } }>;
+        return {
+            pendingId:        f.pendingId?.stringValue ?? '',
+            slug:             f.slug?.stringValue ?? '',
+            title:            f.title?.stringValue ?? '',
+            date:             f.date?.stringValue ?? '',
+            meta_description: f.meta_description?.stringValue ?? '',
+            content:          f.content?.stringValue ?? '',
+            chatId:           Number(f.chatId?.integerValue ?? 0),
+            messageId:        f.messageId?.integerValue ? Number(f.messageId.integerValue) : undefined,
+            status:           (f.status?.stringValue ?? 'pending') as 'pending' | 'editing',
+            createdAt:        f.createdAt?.stringValue ?? '',
+            tags:             f.tags?.arrayValue?.values?.map(v => v.stringValue) ?? [],
+            imageFileIds:     f.imageFileIds?.arrayValue?.values?.map(v => v.stringValue) ?? [],
+        } as PendingPost;
+    });
+}
+
+/** Count published logbook entries */
+export async function countPublishedLogs(): Promise<number> {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+    if (!projectId || !apiKey) return 0;
+
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/logs?key=${apiKey}&pageSize=100`;
+    const res = await fetch(url);
+    if (!res.ok) return 0;
+
+    const data = await res.json();
+    return data.documents?.length ?? 0;
+}
+
 export async function deletePendingPost(pendingId: string): Promise<void> {
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
     const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;

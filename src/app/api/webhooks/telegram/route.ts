@@ -8,6 +8,8 @@ import {
     savePendingPost,
     getPendingPost,
     deletePendingPost,
+    listPendingPosts,
+    countPublishedLogs,
     getUserState,
     setUserState,
     clearUserState,
@@ -78,6 +80,19 @@ async function removeInlineKeyboard(chatId: number, messageId: number): Promise<
         }),
     });
 }
+
+// ─────────────────────────────────────────────
+// Persistent reply keyboard (always visible)
+// ─────────────────────────────────────────────
+
+const MAIN_MENU_KEYBOARD = {
+    keyboard: [
+        [{ text: '📝 Uusi postaus' }, { text: '📋 Draftit' }],
+        [{ text: '📊 Status' }, { text: '❓ Ohje' }],
+    ],
+    resize_keyboard: true,
+    is_persistent: true,
+};
 
 // ─────────────────────────────────────────────
 // Health check
@@ -160,14 +175,16 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
         if (message.text) {
             rawText = message.text as string;
 
-            // /start command
+            // /start command — show welcome + persistent keyboard
             if (rawText === '/start') {
-                await sendMessage(
+                await sendTelegramMessage({
                     chatId,
-                    '✅ *Koivu Voice* is online.\n\n' +
-                    'Lähetä teksti-, ääni- tai kuvaviesti, niin muokkaan siitä logbook-postauksen.\n' +
-                    'Saat esikatselun ja voit julkaista, muokata tai hylätä sen.'
-                );
+                    text:
+                        '✅ *Koivu Voice* is online.\n\n' +
+                        'Lähetä teksti-, ääni- tai kuvaviesti, niin muokkaan siitä logbook-postauksen.\n\n' +
+                        'Tai käytä nappeja alhaalla 👇',
+                    replyMarkup: MAIN_MENU_KEYBOARD,
+                });
                 return;
             }
 
@@ -175,6 +192,38 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
             if (rawText === '/cancel') {
                 await clearUserState(userId);
                 await sendMessage(chatId, '🚫 Peruutettu. Lähetä uusi viesti aloittaaksesi alusta.');
+                return;
+            }
+
+            // ── Menu button handlers ──
+
+            if (rawText === '📝 Uusi postaus') {
+                await sendMessage(chatId, '🎙 Lähetä ääni-, teksti- tai kuvaviesti niin teen siitä postauksen.');
+                return;
+            }
+
+            if (rawText === '📋 Draftit') {
+                await handleDrafts(chatId);
+                return;
+            }
+
+            if (rawText === '📊 Status') {
+                await handleStatus(chatId);
+                return;
+            }
+
+            if (rawText === '❓ Ohje') {
+                await sendMessage(
+                    chatId,
+                    '📖 *Koivu Voice — Ohje*\n\n' +
+                    '🎙 *Ääniviesti* — puhut, botti kirjoittaa postauksen\n' +
+                    '📝 *Tekstiviesti* — kirjoitat, botti refinaa\n' +
+                    '📷 *Kuva + caption* — kuva liitetään postaukseen\n\n' +
+                    '✅ Julkaise / ✏️ Muokkaa / ❌ Hylkää napeilla\n\n' +
+                    '📋 *Draftit* — keskeneräiset postaukset\n' +
+                    '📊 *Status* — sivuston tilanne\n' +
+                    '/cancel — peruuta muokkaus'
+                );
                 return;
             }
 
@@ -306,6 +355,56 @@ async function handleEditInput(
         console.error('[koivu-voice] edit error', err);
         await clearUserState(userId);
         await sendMessage(chatId, `❌ Muokkausvirhe: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+}
+
+// ─────────────────────────────────────────────
+// Drafts — list pending posts
+// ─────────────────────────────────────────────
+
+async function handleDrafts(chatId: number): Promise<void> {
+    try {
+        const drafts = await listPendingPosts();
+
+        if (drafts.length === 0) {
+            await sendMessage(chatId, '📋 Ei drafteja. Lähetä viesti luodaksesi uuden postauksen.');
+            return;
+        }
+
+        await sendMessage(chatId, `📋 *Draftit* (${drafts.length} kpl)\n`);
+
+        for (const draft of drafts) {
+            const { text, replyMarkup } = buildPreviewMessage(draft);
+            await sendTelegramMessage({ chatId, text, replyMarkup });
+        }
+    } catch (err) {
+        console.error('[koivu-voice] drafts error', err);
+        await sendMessage(chatId, '❌ Draftien haku epäonnistui.');
+    }
+}
+
+// ─────────────────────────────────────────────
+// Status — site overview
+// ─────────────────────────────────────────────
+
+async function handleStatus(chatId: number): Promise<void> {
+    try {
+        const [publishedCount, drafts] = await Promise.all([
+            countPublishedLogs(),
+            listPendingPosts(),
+        ]);
+
+        const statusText =
+            `📊 *Koivu Labs Status*\n\n` +
+            `📰 Julkaistuja postauksia: *${publishedCount}*\n` +
+            `📋 Drafteja odottamassa: *${drafts.length}*\n\n` +
+            `🌐 [koivulabs.com](https://koivulabs.com)\n` +
+            `📓 [Logbook](https://koivulabs.com/logbook)`;
+
+        await sendMessage(chatId, statusText);
+    } catch (err) {
+        console.error('[koivu-voice] status error', err);
+        await sendMessage(chatId, '❌ Statuksen haku epäonnistui.');
     }
 }
 
