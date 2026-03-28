@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { transcribeVoice } from '@/lib/transcribeVoice';
 import { refineToLogbookPost } from '@/lib/koivuVoice';
-import { commitToGitHub } from '@/lib/githubCommit';
+import { commitToGitHub, ImageAttachment } from '@/lib/githubCommit';
 import { saveLogToFirestore } from '@/lib/firestoreRest';
+import { downloadTelegramPhoto } from '@/lib/telegramPhoto';
 import {
     savePendingPost,
     getPendingPost,
@@ -95,11 +96,16 @@ function buildPreviewMessage(post: PendingPost): { text: string; replyMarkup: un
         ? post.content.slice(0, 500) + '...'
         : post.content;
 
+    const imageInfo = post.imageFileIds.length > 0
+        ? `\n📷 ${post.imageFileIds.length} kuva${post.imageFileIds.length > 1 ? 'a' : ''} liitteenä`
+        : '';
+
     const text =
         `📝 *${post.title}*\n\n` +
         `${preview}\n\n` +
         `🏷 ${post.tags.join(', ')}\n` +
-        `📅 ${post.date}`;
+        `📅 ${post.date}` +
+        imageInfo;
 
     const replyMarkup = {
         inline_keyboard: [
@@ -148,8 +154,9 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
 
     try {
         let rawText = '';
+        const photoFileIds: string[] = [];
 
-        // Handle text or voice
+        // Handle text, voice, or photo
         if (message.text) {
             rawText = message.text as string;
 
@@ -158,7 +165,7 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
                 await sendMessage(
                     chatId,
                     '✅ *Koivu Voice* is online.\n\n' +
-                    'Lähetä teksti- tai ääniviesti, niin muokkaan siitä logbook-postauksen.\n' +
+                    'Lähetä teksti-, ääni- tai kuvaviesti, niin muokkaan siitä logbook-postauksen.\n' +
                     'Saat esikatselun ja voit julkaista, muokata tai hylätä sen.'
                 );
                 return;
@@ -177,8 +184,25 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
             rawText = await transcribeVoice(fileId);
             await sendMessage(chatId, `📝 *Transcription:*\n\n${rawText.slice(0, 300)}${rawText.length > 300 ? '...' : ''}`);
 
+        } else if (message.photo) {
+            // Telegram sends an array of sizes — pick the largest (last)
+            const photos = message.photo as Array<Record<string, unknown>>;
+            const largest = photos[photos.length - 1];
+            const fileId = largest.file_id as string;
+            photoFileIds.push(fileId);
+
+            // Photo can have a caption — use that as raw text
+            rawText = (message.caption as string) ?? '';
+
+            if (!rawText) {
+                await sendMessage(chatId, '📷 Kuva vastaanotettu! Lisää kuvateksti (caption) viestiin, niin käytän sitä postauksen pohjana.\n\nTai lähetä kuva captionin kanssa.');
+                return;
+            }
+
+            await sendMessage(chatId, `📷 Kuva + teksti vastaanotettu.`);
+
         } else {
-            await sendMessage(chatId, 'Lähetä teksti- tai ääniviesti.');
+            await sendMessage(chatId, 'Lähetä teksti-, ääni- tai kuvaviesti.');
             return;
         }
 
@@ -194,6 +218,7 @@ async function handleMessage(message: Record<string, unknown>): Promise<void> {
             chatId,
             status: 'pending',
             createdAt: new Date().toISOString(),
+            imageFileIds: photoFileIds,
         };
 
         await savePendingPost(pendingPost);
@@ -333,9 +358,21 @@ async function handleCallbackQuery(callbackQuery: Record<string, unknown>): Prom
                     await removeInlineKeyboard(chatId, messageId);
                 }
 
-                // Publish: GitHub + Firestore in parallel
+                // Download attached images from Telegram (if any)
+                let images: ImageAttachment[] | undefined;
+                if (post.imageFileIds.length > 0) {
+                    await sendMessage(chatId, `📷 Downloading ${post.imageFileIds.length} image(s)...`);
+                    images = await Promise.all(
+                        post.imageFileIds.map(async (fileId) => {
+                            const photo = await downloadTelegramPhoto(fileId);
+                            return { base64: photo.base64, extension: photo.extension };
+                        })
+                    );
+                }
+
+                // Publish: GitHub (with images) + Firestore in parallel
                 const [{ url, path }] = await Promise.all([
-                    commitToGitHub(post),
+                    commitToGitHub(post, images),
                     saveLogToFirestore(post),
                 ]);
 

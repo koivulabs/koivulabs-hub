@@ -13,6 +13,7 @@ export interface PendingPost extends LogbookPost {
     messageId?: number; // Telegram message ID for editing the preview
     status: 'pending' | 'editing';
     createdAt: string;
+    imageFileIds: string[]; // Telegram file_id references for attached photos
 }
 
 export interface UserState {
@@ -53,6 +54,11 @@ export async function savePendingPost(post: PendingPost): Promise<void> {
             tags: {
                 arrayValue: {
                     values: post.tags.map(t => ({ stringValue: t })),
+                },
+            },
+            imageFileIds: {
+                arrayValue: {
+                    values: (post.imageFileIds ?? []).map(id => ({ stringValue: id })),
                 },
             },
         },
@@ -96,6 +102,7 @@ export async function getPendingPost(pendingId: string): Promise<PendingPost | n
         status:           (f.status?.stringValue ?? 'pending') as 'pending' | 'editing',
         createdAt:        f.createdAt?.stringValue ?? '',
         tags:             f.tags?.arrayValue?.values?.map((v: { stringValue: string }) => v.stringValue) ?? [],
+        imageFileIds:     f.imageFileIds?.arrayValue?.values?.map((v: { stringValue: string }) => v.stringValue) ?? [],
     };
 }
 
