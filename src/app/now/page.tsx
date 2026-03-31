@@ -7,24 +7,28 @@ import GitHubCalendar from '@/components/GitHubCalendar';
 // Fallback content (used until first Telegram update)
 const FALLBACK = {
     building: [
-        'Koivu Labs Hub — the studio portal you\'re looking at. Features shipping week by week.',
-        'BrainBuffer — working on voice-to-text latency. The gap between thought and storage should be zero.',
-        'Learning Firebase security rules properly. No shortcuts.',
+        'Call2u Chatbot v3 — custom AI chatbot platform built from scratch. Third iteration. This one is production-ready.',
+        'UnReel — YouTube video truth analyzer. Multi-model pipeline that tells you what a video actually contains.',
+        'Voice2Post — record your voice, get a publish-ready social post. Solving the friction between thought and content.',
+        'Koivu Labs Hub — the studio portal you\'re looking at. Root system and project index just shipped.',
     ],
     learning: [
-        'Next.js App Router — server components, middleware, edge functions.',
-        'TypeScript — fewer any types every week.',
-        'How to ask AI the right questions, not just accept the first answer.',
+        'Building real products for real clients. Laluna and Karhun Kattila are live — first paying customers.',
+        'AI orchestration — when to use Claude, when Gemini, when to chain them.',
+        'Firebase security rules. In production. The hard way.',
+        'How fast you can actually ship when you stop second-guessing the architecture.',
     ],
     reading: [
+        'Other people\'s codebases — the fastest way to learn what not to do.',
         'Documentation. More documentation. Occasionally something that isn\'t documentation.',
     ],
     notDoing: [
-        'Pretending to know more than I do.',
+        'Flowise. Built on it, learned from it, moved on.',
         'Waiting until things are perfect before shipping.',
+        'Pretending the first version will be the last.',
     ],
     location: 'Northern Central Finland. Quiet. The kind of quiet that makes it easy to focus.',
-    updatedAt: 'March 2026',
+    updatedAt: 'April 2026',
 };
 
 interface NowData {

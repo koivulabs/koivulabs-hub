@@ -51,8 +51,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 {/* Left Column: Mission & Identity */}
                 <div className="space-y-12">
                     <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold tracking-widest uppercase mb-6">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-widest uppercase mb-6 ${
+                            project.zone === 'roots'
+                                ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
+                                : 'bg-teal-500/10 border border-teal-500/20 text-teal-400'
+                        }`}>
+                            {project.zone === 'roots' && <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />}
                             {project.category} / {project.status}
+                            {project.zone === 'roots' && <span className="opacity-60">· Growing</span>}
                         </div>
                         <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-100 mb-6 italic">
                             {project.name}
@@ -62,10 +68,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         </p>
                     </div>
 
-                    <div className="p-8 tree-glass nordic-glow border-teal-500/20">
-                        <h3 className="text-teal-400 text-xs font-bold tracking-widest uppercase mb-4">Strategic Vision</h3>
+                    <div className={`p-8 tree-glass nordic-glow ${project.zone === 'roots' ? 'border-amber-500/20' : 'border-teal-500/20'}`}>
+                        <h3 className={`text-xs font-bold tracking-widest uppercase mb-4 ${project.zone === 'roots' ? 'text-amber-400' : 'text-teal-400'}`}>Strategic Vision</h3>
                         <p className="text-slate-100 text-lg italic leading-relaxed">
-                            "{project.vision}"
+                            &ldquo;{project.vision}&rdquo;
                         </p>
                     </div>
 

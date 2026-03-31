@@ -23,6 +23,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSubmit, onC
         techStack: [],
         vision: '',
         currentMission: '',
+        zone: 'canopy',
         treePosition: { x: 50, y: 50 }
     });
 
@@ -69,6 +70,18 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSubmit, onC
                         />
                     </div>
                     <div>
+                        <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Zone</label>
+                        <select
+                            name="zone"
+                            value={project.zone}
+                            onChange={handleChange}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm focus:border-teal-500 outline-none transition-colors"
+                        >
+                            <option value="canopy">🌿 Canopy — shown in the tree</option>
+                            <option value="roots">🌱 Roots — underground / growing</option>
+                        </select>
+                    </div>
+                    <div>
                         <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Category</label>
                         <select
                             name="category"
@@ -81,6 +94,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSubmit, onC
                             <option value="Social">Social</option>
                             <option value="Utility">Utility</option>
                             <option value="OS">OS</option>
+                            <option value="Infrastructure">Infrastructure</option>
                         </select>
                     </div>
                     <div>
@@ -101,7 +115,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSubmit, onC
 
                 <div className="space-y-4">
                     <label className="block text-xs font-bold uppercase text-slate-500 mb-1">
-                        Tree Position (Click on the area to set X: {project.treePosition.x}, Y: {project.treePosition.y})
+                        {project.zone === 'roots'
+                            ? `Roots Position — X: ${project.treePosition.x}, Y: ${project.treePosition.y} (used for ordering in root row)`
+                            : `Tree Position — Click to set X: ${project.treePosition.x}, Y: ${project.treePosition.y}`
+                        }
                     </label>
                     <div
                         className="relative aspect-video bg-slate-800 rounded-xl border-2 border-dashed border-slate-700 cursor-crosshair overflow-hidden group"

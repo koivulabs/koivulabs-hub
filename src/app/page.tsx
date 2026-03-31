@@ -1,6 +1,7 @@
 import InteractiveProjectTree from '@/components/InteractiveProjectTree';
 import HeroTyping from '@/components/HeroTyping';
 import CopyEmail from '@/components/CopyEmail';
+import ProjectIndex from '@/components/ProjectIndex';
 
 export default function Home() {
   return (
@@ -40,7 +41,7 @@ export default function Home() {
       <section className="relative z-20 px-6 md:px-12 lg:px-24 pb-12">
         <div className="max-w-7xl mx-auto border-y border-slate-800/50 py-6 flex flex-wrap gap-8 md:gap-16">
           {[
-            { value: '8', label: 'Active Projects' },
+            { value: '11', label: 'Active Projects' },
             { value: 'Est. 2026', label: 'Founded' },
             { value: 'Saarijärvi', label: 'Finland' },
             { value: 'AI-First', label: 'Methodology' },
@@ -69,6 +70,19 @@ export default function Home() {
           </div>
 
           <InteractiveProjectTree />
+        </div>
+      </section>
+
+      {/* Project Index — filterable list below the tree */}
+      <section className="relative z-10 px-6 pb-20 md:pb-24 md:px-12 lg:px-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+              <h2 className="text-sm font-bold tracking-[0.5em] text-slate-500 uppercase mb-2">Project Index</h2>
+              <p className="text-2xl text-slate-100 font-light italic">All <span className="text-teal-400">11 projects</span> — filterable</p>
+            </div>
+          </div>
+          <ProjectIndex />
         </div>
       </section>
 

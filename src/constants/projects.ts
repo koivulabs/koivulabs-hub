@@ -11,6 +11,9 @@ export interface Project {
     techStack: string[];
     vision: string;
     currentMission?: string;
+    // 'canopy' = visible in the birch tree crown (existing projects)
+    // 'roots'  = underground section — new/growing projects
+    zone: 'canopy' | 'roots';
     treePosition: { x: number; y: number };
 }
 
@@ -28,6 +31,7 @@ export const projects: Project[] = [
         techStack: ['Next.js', 'PostgreSQL', 'Whisper AI', 'Tailwind CSS'],
         vision: 'To make the gap between thought and storage zero.',
         currentMission: 'Optimizing Voice-to-Text latency for instant capture.',
+        zone: 'canopy',
         treePosition: { x: 50, y: 15 }
     },
     {
@@ -43,6 +47,7 @@ export const projects: Project[] = [
         techStack: ['React', 'Supabase', 'TypeScript', 'Node.js'],
         vision: 'The operating system for the modern human.',
         currentMission: 'Integrating GitHub contribution calendar into the main view.',
+        zone: 'canopy',
         treePosition: { x: 66, y: 29 }
     },
     {
@@ -58,6 +63,7 @@ export const projects: Project[] = [
         techStack: ['Next.js', 'Firebase', 'Google Vision API', 'Chart.js'],
         vision: 'Financial clarity through pragmatic intelligence.',
         currentMission: 'Refining OCR accuracy for complex retail receipts.',
+        zone: 'canopy',
         treePosition: { x: 35, y: 29 }
     },
     {
@@ -73,6 +79,7 @@ export const projects: Project[] = [
         techStack: ['Python', 'FastAPI', 'Llama 3', 'React'],
         vision: 'Taking the stress out of professional growth.',
         currentMission: 'Expanding market insight scraping to international platforms.',
+        zone: 'canopy',
         treePosition: { x: 26, y: 49 }
     },
     {
@@ -88,6 +95,7 @@ export const projects: Project[] = [
         techStack: ['Next.js', 'OpenAI API', 'Tailwind CSS', 'Framer Motion'],
         vision: 'Quantifying the unquantifiable social energy.',
         currentMission: 'Training neural models on nuanced Nordic communication styles.',
+        zone: 'canopy',
         treePosition: { x: 74, y: 49 }
     },
     {
@@ -102,6 +110,7 @@ export const projects: Project[] = [
         features: ['Simple Task Lists', 'Basic Time Tracking', 'File Organization', 'Context Notes'],
         techStack: ['HTML/CSS', 'JavaScript', 'Local Storage'],
         vision: 'The beginning of organized digital life.',
+        zone: 'canopy',
         treePosition: { x: 38, y: 72 }
     },
     {
@@ -117,6 +126,7 @@ export const projects: Project[] = [
         techStack: ['Next.js', 'Claude API', 'Tailwind CSS', 'Monaco Editor'],
         vision: 'Redefining development at the speed of thought.',
         currentMission: 'Exploring late-stage code generation with deep context injection.',
+        zone: 'canopy',
         treePosition: { x: 62, y: 72 }
     },
     {
@@ -132,6 +142,7 @@ export const projects: Project[] = [
         techStack: ['Telegram Bot API', 'OpenAI Whisper', 'GPT-4o', 'Next.js', 'Firestore REST API'],
         vision: 'Zero friction from raw thought to published post.',
         currentMission: 'Field testing voice-to-logbook pipeline in daily studio use.',
+        zone: 'canopy',
         treePosition: { x: 84, y: 62 }
     },
     {
@@ -147,6 +158,41 @@ export const projects: Project[] = [
         techStack: ['React', 'TypeScript', 'Firebase', 'Tailwind CSS', 'Recharts'],
         vision: 'Bridging the gap between education and employment through intelligent guidance.',
         currentMission: 'Expanding API coverage and refining the recommendation scoring model.',
+        zone: 'canopy',
         treePosition: { x: 18, y: 38 }
+    },
+    // ─── ROOTS ───────────────────────────────────────────────────────────────
+    // Projects growing underground — new products in active development
+    {
+        id: 'unreel',
+        name: 'UnReel',
+        description: 'YouTube video truth analyzer. Cuts through hype to tell you what a video actually contains.',
+        longDescription: 'UnReel is a multi-model video research tool that watches YouTube videos the way a critical analyst would. Gemini processes visual content natively while a user-selected thinking AI (Claude, GPT-4o, or Gemini) generates structured reports, claim maps, and a trust score — exposing sales funnels, sponsored content, and misinformation in seconds.',
+        url: '#',
+        logoUrl: '/logos/unreel.png',
+        category: 'Utility',
+        status: 'Active Lab',
+        features: ['Multi-model Analysis Pipeline', 'Bullshit Detector / Trust Score', 'Claim Map with Fact-check', 'Full Report & Article Export'],
+        techStack: ['Next.js', 'Gemini', 'Claude API', 'TypeScript', 'Firebase'],
+        vision: 'Make every YouTube video auditable in seconds.',
+        currentMission: 'Shipping MVP with Quick Scan and Trust Score — full report mode in next sprint.',
+        zone: 'roots',
+        treePosition: { x: 30, y: 40 }
+    },
+    {
+        id: 'voice2post',
+        name: 'Voice2Post',
+        description: 'Record your voice, get a publish-ready social post. Zero editing friction.',
+        longDescription: 'Voice2Post captures raw voice recordings and transforms them into polished, platform-ready content using AI transcription and rewriting. The user speaks naturally, selects the target platform and tone, and the post is ready. Built for founders, creators, and anyone who thinks faster than they type.',
+        url: '#',
+        logoUrl: '/logos/voice2post.png',
+        category: 'Productivity',
+        status: 'Active Lab',
+        features: ['Voice Recording Interface', 'AI Transcription', 'Multi-platform Post Formatting', 'Tone & Style Selection'],
+        techStack: ['Next.js', 'Firebase', 'OpenAI Whisper', 'TypeScript', 'Tailwind CSS'],
+        vision: 'Collapse the distance between a thought and a published post.',
+        currentMission: 'Finalizing post review UI and Firebase auth — preparing for Vercel deployment under KoivuLabs.',
+        zone: 'roots',
+        treePosition: { x: 60, y: 35 }
     }
 ];
