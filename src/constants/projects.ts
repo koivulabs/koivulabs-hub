@@ -194,5 +194,21 @@ export const projects: Project[] = [
         currentMission: 'Finalizing post review UI and Firebase auth — preparing for Vercel deployment under KoivuLabs.',
         zone: 'roots',
         treePosition: { x: 60, y: 35 }
+    },
+    {
+        id: 'koivuchat',
+        name: 'KoivuChat',
+        description: 'AI chatbot platform for Finnish businesses. Custom-trained, brand-matched, GDPR-ready.',
+        longDescription: 'KoivuChat is the commercial chatbot product from Koivu Labs — now in its third generation. V3 is built entirely custom: no Flowise, no Qdrant, just Next.js + Firebase + LLM APIs. It learns from the client\'s data and answers customer questions 24/7. Deployed as an embeddable widget that matches the client\'s brand. Currently powering Call2u\'s customer service.',
+        url: '/koivuchat',
+        logoUrl: '/logos/koivuchat.png',
+        category: 'Infrastructure',
+        status: 'Flagship',
+        features: ['Custom AI Training', 'Embeddable Widget', 'Brand-matched Design', 'GDPR / EU Data Compliance'],
+        techStack: ['Next.js', 'Firebase', 'Claude API', 'TypeScript', 'Tailwind CSS'],
+        vision: 'Every Finnish business deserves an AI that speaks their language.',
+        currentMission: 'V3 architecture stabilization. Re-speccing product page to match new reality.',
+        zone: 'roots',
+        treePosition: { x: 45, y: 65 }
     }
 ];

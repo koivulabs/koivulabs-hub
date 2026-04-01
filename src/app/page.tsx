@@ -1,7 +1,6 @@
-import InteractiveProjectTree from '@/components/InteractiveProjectTree';
 import HeroTyping from '@/components/HeroTyping';
 import CopyEmail from '@/components/CopyEmail';
-import ProjectIndex from '@/components/ProjectIndex';
+import EcosystemSection from '@/components/EcosystemSection';
 
 export default function Home() {
   return (
@@ -41,7 +40,7 @@ export default function Home() {
       <section className="relative z-20 px-6 md:px-12 lg:px-24 pb-12">
         <div className="max-w-7xl mx-auto border-y border-slate-800/50 py-6 flex flex-wrap gap-8 md:gap-16">
           {[
-            { value: '11', label: 'Active Projects' },
+            { value: '12', label: 'Active Projects' },
             { value: 'Est. 2026', label: 'Founded' },
             { value: 'Saarijärvi', label: 'Finland' },
             { value: 'AI-First', label: 'Methodology' },
@@ -54,35 +53,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Interactive Tech-Tree v1.4 */}
+      {/* Ecosystem: Tree + Roots + Project Index — with toggle */}
       <section id="lab" className="relative z-10 px-6 pb-20 md:pb-32">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div>
-              <h2 className="text-sm font-bold tracking-[0.5em] text-slate-500 uppercase mb-2">Technical Ecosystem</h2>
-              <p className="text-2xl text-slate-100 font-light italic">The Birch Tech-Tree <span className="text-teal-400">v1.5</span></p>
-            </div>
-            <div className="hidden md:block text-right">
-              <p className="text-xs text-slate-500 max-w-xs leading-relaxed uppercase tracking-widest opacity-60 font-medium">
-                Mapping 8 strategic project missions across the neural birch structure.
-              </p>
-            </div>
-          </div>
-
-          <InteractiveProjectTree />
-        </div>
-      </section>
-
-      {/* Project Index — filterable list below the tree */}
-      <section className="relative z-10 px-6 pb-20 md:pb-24 md:px-12 lg:px-24">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-            <div>
-              <h2 className="text-sm font-bold tracking-[0.5em] text-slate-500 uppercase mb-2">Project Index</h2>
-              <p className="text-2xl text-slate-100 font-light italic">All <span className="text-teal-400">11 projects</span> — filterable</p>
-            </div>
-          </div>
-          <ProjectIndex />
+          <EcosystemSection />
         </div>
       </section>
 

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { projectService } from '@/lib/projectService';
 import { trackProjectClick } from '@/lib/analytics';
 
-const InteractiveProjectTree: React.FC = () => {
+const RootSystem: React.FC = () => {
     const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
     const [projects, setProjects] = useState<Project[]>(staticProjects);
 
@@ -19,28 +19,29 @@ const InteractiveProjectTree: React.FC = () => {
                     setProjects(dynamicData);
                 }
             } catch (error) {
-                console.warn("Using static project data (Firebase not connected)");
+                console.warn('Using static project data (Firebase not connected)');
             }
         };
         loadDynamicProjects();
     }, []);
 
-    // Only canopy projects appear on the birch tree — roots have their own component
-    const canopyProjects = projects.filter(p => p.zone === 'canopy');
+    const rootProjects = projects.filter(p => p.zone === 'roots');
+
+    if (rootProjects.length === 0) return null;
 
     return (
-        <div className="relative w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden shadow-2xl border border-slate-800/50 group bg-slate-900">
+        <div className="relative w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden shadow-2xl border border-amber-900/30 group bg-slate-900">
             {/* Background Image Layer */}
             <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.02]"
-                style={{ backgroundImage: "url('/images/birch_tech_tree.png')" }}
+                style={{ backgroundImage: "url('/images/birch_tech_roots.png')" }}
             />
 
-            {/* Subtle Overlay to make tooltips pop */}
-            <div className="absolute inset-0 bg-slate-950/30 pointer-events-none" />
+            {/* Subtle warm overlay */}
+            <div className="absolute inset-0 bg-slate-950/20 pointer-events-none" />
 
             {/* Interactive Hotspots */}
-            {canopyProjects.map((project) => {
+            {rootProjects.map((project) => {
                 const isHovered = hoveredProject?.id === project.id;
 
                 return (
@@ -56,19 +57,19 @@ const InteractiveProjectTree: React.FC = () => {
                                 whileHover={{ scale: 1.1 }}
                                 className="w-16 h-16 md:w-20 md:h-20 rounded-full cursor-pointer flex items-center justify-center relative"
                             >
-                                {/* Breathing Pulse Animation (UX Affordance) */}
-                                <div className="node-pulse" />
+                                {/* Breathing Pulse — amber variant */}
+                                <div className="node-pulse-amber" />
 
                                 {isHovered && (
-                                    <div className="node-pulse" style={{ animationDelay: '0.5s', opacity: 0.8 }} />
+                                    <div className="node-pulse-amber" style={{ animationDelay: '0.5s', opacity: 0.8 }} />
                                 )}
 
                                 {/* Hover Glow */}
                                 <AnimatePresence>
                                     {isHovered && (
                                         <motion.div
-                                            layoutId="activeGlow"
-                                            className="absolute inset-0 rounded-full bg-teal-400/10 blur-xl"
+                                            layoutId="rootGlow"
+                                            className="absolute inset-0 rounded-full bg-amber-400/15 blur-xl"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0 }}
@@ -76,20 +77,20 @@ const InteractiveProjectTree: React.FC = () => {
                                     )}
                                 </AnimatePresence>
 
-                                {/* Project Initial (Glyph) */}
-                                <div className="relative z-10 text-xl md:text-2xl font-black text-teal-400 opacity-40 group-hover/node:opacity-100 transition-opacity duration-300 pointer-events-none italic">
+                                {/* Project Initial */}
+                                <div className="relative z-10 text-xl md:text-2xl font-black text-amber-400 opacity-40 group-hover/node:opacity-100 transition-opacity duration-300 pointer-events-none italic">
                                     {project.name[0]}
                                 </div>
 
-                                {/* Area Definition Border */}
-                                <div className="absolute inset-0 rounded-full border border-teal-500/10 group-hover/node:border-teal-500/50 transition-colors" />
+                                {/* Border */}
+                                <div className="absolute inset-0 rounded-full border border-amber-500/10 group-hover/node:border-amber-500/50 transition-colors" />
                             </motion.div>
                         </Link>
                     </div>
                 );
             })}
 
-            {/* Side Panel / Floating Tooltip for Project Info */}
+            {/* Side Panel / Floating Tooltip */}
             <AnimatePresence>
                 {hoveredProject && (
                     <motion.div
@@ -100,14 +101,19 @@ const InteractiveProjectTree: React.FC = () => {
                     >
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-400 font-bold border border-teal-500/30">
+                                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold border border-amber-500/30">
                                     {hoveredProject.name[0]}
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100">{hoveredProject.name}</h3>
-                                    <span className="text-[10px] text-teal-400 font-bold tracking-widest uppercase">
-                                        {hoveredProject.status}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] text-amber-400 font-bold tracking-widest uppercase">
+                                            {hoveredProject.status}
+                                        </span>
+                                        <span className="text-[9px] font-bold tracking-widest uppercase text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded-full border border-amber-500/20">
+                                            Growing
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -116,8 +122,8 @@ const InteractiveProjectTree: React.FC = () => {
                             </p>
 
                             {hoveredProject.currentMission && (
-                                <div className="p-3 bg-teal-500/5 border border-teal-500/10 rounded-xl">
-                                    <h4 className="text-[10px] text-teal-400 font-black tracking-widest uppercase mb-1">Current Mission</h4>
+                                <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl">
+                                    <h4 className="text-[10px] text-amber-400 font-black tracking-widest uppercase mb-1">Current Mission</h4>
                                     <p className="text-[11px] text-slate-200 leading-snug">
                                         {hoveredProject.currentMission}
                                     </p>
@@ -135,7 +141,7 @@ const InteractiveProjectTree: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="text-teal-400 text-xs font-bold animate-pulse">
+                            <div className="text-amber-400 text-xs font-bold animate-pulse">
                                 Click to explore mission →
                             </div>
                         </div>
@@ -143,14 +149,14 @@ const InteractiveProjectTree: React.FC = () => {
                 )}
             </AnimatePresence>
 
-            {/* Legend / Tip */}
+            {/* Legend */}
             <div className="absolute bottom-4 left-6 z-10 pointer-events-none">
-                <p className="text-[10px] text-slate-500 font-bold tracking-[0.3em] uppercase opacity-50 group-hover:opacity-100 transition-opacity">
-                    Interactive Ecosystem v1.6
+                <p className="text-[10px] text-amber-700/50 font-bold tracking-[0.3em] uppercase opacity-50 group-hover:opacity-100 transition-opacity">
+                    Root System — Growing Projects
                 </p>
             </div>
         </div>
     );
 };
 
-export default InteractiveProjectTree;
+export default RootSystem;
