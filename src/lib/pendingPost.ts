@@ -1,7 +1,8 @@
-// Pending post storage via Firestore REST API
+// Pending post storage via Firebase Admin SDK
 // Stores draft posts waiting for user approval before publishing
 
 import { LogbookPost } from './koivuVoice';
+import { getAdminDb } from './firebaseAdmin';
 
 // ─────────────────────────────────────────────
 // Types
@@ -22,14 +23,11 @@ export interface UserState {
 }
 
 // ─────────────────────────────────────────────
-// Firestore REST helpers
+// Helper
 // ─────────────────────────────────────────────
 
-function firestoreUrl(path: string): string {
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-    if (!projectId || !apiKey) throw new Error('Firebase env vars not set');
-    return `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${path}?key=${apiKey}`;
+function db() {
+    return getAdminDb();
 }
 
 // ─────────────────────────────────────────────
@@ -37,133 +35,76 @@ function firestoreUrl(path: string): string {
 // ─────────────────────────────────────────────
 
 export async function savePendingPost(post: PendingPost): Promise<void> {
-    const url = firestoreUrl(`pendingPosts/${post.pendingId}`);
-
-    const body = {
-        fields: {
-            pendingId:        { stringValue: post.pendingId },
-            slug:             { stringValue: post.slug },
-            title:            { stringValue: post.title },
-            date:             { stringValue: post.date },
-            meta_description: { stringValue: post.meta_description },
-            content:          { stringValue: post.content },
-            chatId:           { integerValue: String(post.chatId) },
-            messageId:        post.messageId ? { integerValue: String(post.messageId) } : { nullValue: null },
-            status:           { stringValue: post.status },
-            createdAt:        { stringValue: post.createdAt },
-            tags: {
-                arrayValue: {
-                    values: post.tags.map(t => ({ stringValue: t })),
-                },
-            },
-            imageFileIds: {
-                arrayValue: {
-                    values: (post.imageFileIds ?? []).map(id => ({ stringValue: id })),
-                },
-            },
-        },
-    };
-
-    const res = await fetch(url, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+    await db().doc(`pendingPosts/${post.pendingId}`).set({
+        pendingId: post.pendingId,
+        slug: post.slug,
+        title: post.title,
+        date: post.date,
+        meta_description: post.meta_description,
+        content: post.content,
+        chatId: post.chatId,
+        messageId: post.messageId ?? null,
+        status: post.status,
+        createdAt: post.createdAt,
+        tags: post.tags,
+        imageFileIds: post.imageFileIds ?? [],
     });
-
-    if (!res.ok) {
-        const err = await res.json();
-        throw new Error(`Firestore save pending error: ${JSON.stringify(err)}`);
-    }
 }
 
 export async function getPendingPost(pendingId: string): Promise<PendingPost | null> {
-    const url = firestoreUrl(`pendingPosts/${pendingId}`);
+    const snap = await db().doc(`pendingPosts/${pendingId}`).get();
+    if (!snap.exists) return null;
 
-    const res = await fetch(url);
-    if (res.status === 404) return null;
-    if (!res.ok) {
-        const err = await res.json();
-        throw new Error(`Firestore get pending error: ${JSON.stringify(err)}`);
-    }
-
-    const data = await res.json();
-    const f = data.fields;
-    if (!f) return null;
-
+    const d = snap.data()!;
     return {
-        pendingId:        f.pendingId?.stringValue ?? '',
-        slug:             f.slug?.stringValue ?? '',
-        title:            f.title?.stringValue ?? '',
-        date:             f.date?.stringValue ?? '',
-        meta_description: f.meta_description?.stringValue ?? '',
-        content:          f.content?.stringValue ?? '',
-        chatId:           Number(f.chatId?.integerValue ?? 0),
-        messageId:        f.messageId?.integerValue ? Number(f.messageId.integerValue) : undefined,
-        status:           (f.status?.stringValue ?? 'pending') as 'pending' | 'editing',
-        createdAt:        f.createdAt?.stringValue ?? '',
-        tags:             f.tags?.arrayValue?.values?.map((v: { stringValue: string }) => v.stringValue) ?? [],
-        imageFileIds:     f.imageFileIds?.arrayValue?.values?.map((v: { stringValue: string }) => v.stringValue) ?? [],
+        pendingId: d.pendingId ?? '',
+        slug: d.slug ?? '',
+        title: d.title ?? '',
+        date: d.date ?? '',
+        meta_description: d.meta_description ?? '',
+        content: d.content ?? '',
+        chatId: Number(d.chatId ?? 0),
+        messageId: d.messageId ? Number(d.messageId) : undefined,
+        status: (d.status ?? 'pending') as 'pending' | 'editing',
+        createdAt: d.createdAt ?? '',
+        tags: d.tags ?? [],
+        imageFileIds: d.imageFileIds ?? [],
     };
 }
 
-/** List all pending posts (Firestore REST list query) */
+/** List all pending posts */
 export async function listPendingPosts(): Promise<PendingPost[]> {
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-    if (!projectId || !apiKey) throw new Error('Firebase env vars not set');
+    const snap = await db().collection('pendingPosts').limit(50).get();
 
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/pendingPosts?key=${apiKey}`;
-    const res = await fetch(url);
-    if (!res.ok) return [];
-
-    const data = await res.json();
-    if (!data.documents) return [];
-
-    return data.documents.map((doc: { fields: Record<string, unknown> }) => {
-        const f = doc.fields as Record<string, { stringValue?: string; integerValue?: string; arrayValue?: { values?: Array<{ stringValue: string }> } }>;
-        return {
-            pendingId:        f.pendingId?.stringValue ?? '',
-            slug:             f.slug?.stringValue ?? '',
-            title:            f.title?.stringValue ?? '',
-            date:             f.date?.stringValue ?? '',
-            meta_description: f.meta_description?.stringValue ?? '',
-            content:          f.content?.stringValue ?? '',
-            chatId:           Number(f.chatId?.integerValue ?? 0),
-            messageId:        f.messageId?.integerValue ? Number(f.messageId.integerValue) : undefined,
-            status:           (f.status?.stringValue ?? 'pending') as 'pending' | 'editing',
-            createdAt:        f.createdAt?.stringValue ?? '',
-            tags:             f.tags?.arrayValue?.values?.map(v => v.stringValue) ?? [],
-            imageFileIds:     f.imageFileIds?.arrayValue?.values?.map(v => v.stringValue) ?? [],
-        } as PendingPost;
-    });
+    return snap.docs
+        .map(doc => {
+            const d = doc.data();
+            return {
+                pendingId: d.pendingId ?? '',
+                slug: d.slug ?? '',
+                title: d.title ?? '',
+                date: d.date ?? '',
+                meta_description: d.meta_description ?? '',
+                content: d.content ?? '',
+                chatId: Number(d.chatId ?? 0),
+                messageId: d.messageId ? Number(d.messageId) : undefined,
+                status: (d.status ?? 'pending') as 'pending' | 'editing',
+                createdAt: d.createdAt ?? '',
+                tags: d.tags ?? [],
+                imageFileIds: d.imageFileIds ?? [],
+            } as PendingPost;
+        })
+        .filter(p => p.pendingId);
 }
 
 /** Count published logbook entries */
 export async function countPublishedLogs(): Promise<number> {
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-    if (!projectId || !apiKey) return 0;
-
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/logs?key=${apiKey}&pageSize=100`;
-    const res = await fetch(url);
-    if (!res.ok) return 0;
-
-    const data = await res.json();
-    return data.documents?.length ?? 0;
+    const snap = await db().collection('logs').limit(100).get();
+    return snap.docs.length;
 }
 
 export async function deletePendingPost(pendingId: string): Promise<void> {
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-    if (!projectId || !apiKey) throw new Error('Firebase env vars not set');
-
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/pendingPosts/${pendingId}?key=${apiKey}`;
-
-    const res = await fetch(url, { method: 'DELETE' });
-    if (!res.ok && res.status !== 404) {
-        const err = await res.json();
-        throw new Error(`Firestore delete pending error: ${JSON.stringify(err)}`);
-    }
+    await db().doc(`pendingPosts/${pendingId}`).delete();
 }
 
 // ─────────────────────────────────────────────
@@ -171,42 +112,25 @@ export async function deletePendingPost(pendingId: string): Promise<void> {
 // ─────────────────────────────────────────────
 
 export async function getUserState(userId: number): Promise<UserState> {
-    const url = firestoreUrl(`userState/${userId}`);
+    const snap = await db().doc(`userState/${userId}`).get();
+    if (!snap.exists) return { mode: 'idle' };
 
-    const res = await fetch(url);
-    if (res.status === 404) return { mode: 'idle' };
-    if (!res.ok) return { mode: 'idle' };
-
-    const data = await res.json();
-    const f = data.fields;
-    if (!f) return { mode: 'idle' };
-
+    const d = snap.data()!;
     return {
-        mode: (f.mode?.stringValue ?? 'idle') as 'idle' | 'editing',
-        pendingId: f.pendingId?.stringValue || undefined,
+        mode: (d.mode ?? 'idle') as 'idle' | 'editing',
+        pendingId: d.pendingId || undefined,
     };
 }
 
 export async function setUserState(userId: number, state: UserState): Promise<void> {
-    const url = firestoreUrl(`userState/${userId}`);
-
-    const fields: Record<string, unknown> = {
-        mode: { stringValue: state.mode },
+    const data: Record<string, unknown> = {
+        mode: state.mode,
     };
     if (state.pendingId) {
-        fields.pendingId = { stringValue: state.pendingId };
+        data.pendingId = state.pendingId;
     }
 
-    const res = await fetch(url, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fields }),
-    });
-
-    if (!res.ok) {
-        const err = await res.json();
-        throw new Error(`Firestore set user state error: ${JSON.stringify(err)}`);
-    }
+    await db().doc(`userState/${userId}`).set(data);
 }
 
 export async function clearUserState(userId: number): Promise<void> {

@@ -1,31 +1,7 @@
 // One-time migration: fix Firestore log documents with spaces in their slugs
 
 import { NextRequest, NextResponse } from 'next/server';
-
-const BASE = `https://firestore.googleapis.com/v1/projects/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents/logs`;
-const KEY = `?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`;
-
-async function getDoc(slug: string) {
-    const res = await fetch(`${BASE}/${encodeURIComponent(slug)}${KEY}`);
-    if (!res.ok) return null;
-    return res.json();
-}
-
-async function createDoc(slug: string, fields: unknown) {
-    const res = await fetch(`${BASE}/${slug}${KEY}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fields }),
-    });
-    return res.ok;
-}
-
-async function deleteDoc(slug: string) {
-    const res = await fetch(`${BASE}/${encodeURIComponent(slug)}${KEY}`, {
-        method: 'DELETE',
-    });
-    return res.ok;
-}
+import { getAdminDb } from '@/lib/firebaseAdmin';
 
 function fixSlug(slug: string): string {
     return slug
@@ -44,28 +20,29 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const db = getAdminDb();
     const results: { slug: string; fixed: string; status: string }[] = [];
 
     for (const broken of BROKEN_SLUGS) {
         const fixed = fixSlug(broken);
-        const docData = await getDoc(broken);
 
-        if (!docData || docData.error) {
-            results.push({ slug: broken, fixed, status: 'not found' });
-            continue;
+        try {
+            const snap = await db.doc(`logs/${broken}`).get();
+            if (!snap.exists) {
+                results.push({ slug: broken, fixed, status: 'not found' });
+                continue;
+            }
+
+            const data = snap.data()!;
+            data.id = fixed;
+
+            await db.doc(`logs/${fixed}`).set(data);
+            await db.doc(`logs/${broken}`).delete();
+
+            results.push({ slug: broken, fixed, status: 'migrated' });
+        } catch (err) {
+            results.push({ slug: broken, fixed, status: `error: ${err instanceof Error ? err.message : 'unknown'}` });
         }
-
-        // Update the id field inside the document to match new slug
-        const fields = { ...docData.fields, id: { stringValue: fixed } };
-
-        const created = await createDoc(fixed, fields);
-        if (!created) {
-            results.push({ slug: broken, fixed, status: 'create failed' });
-            continue;
-        }
-
-        const deleted = await deleteDoc(broken);
-        results.push({ slug: broken, fixed, status: deleted ? 'migrated' : 'created but old not deleted' });
     }
 
     return NextResponse.json({ results });
