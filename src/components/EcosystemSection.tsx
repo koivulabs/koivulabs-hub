@@ -25,33 +25,13 @@ const EcosystemSection: React.FC = () => {
                 <div className="space-y-8">
                     {/* The Birch Tech-Tree */}
                     <div>
-                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
-                            <div>
-                                <h2 className="text-sm font-bold tracking-[0.5em] text-slate-500 uppercase mb-2">Technical Ecosystem</h2>
-                                <p className="text-2xl text-slate-100 font-light italic">The Birch Tech-Tree <span className="text-teal-400">v1.6</span></p>
-                            </div>
-                            <div className="hidden md:block text-right">
-                                <p className="text-xs text-slate-500 max-w-xs leading-relaxed uppercase tracking-widest opacity-60 font-medium">
-                                    Mapping strategic project missions across the neural birch structure.
-                                </p>
-                            </div>
-                        </div>
+                        <p className="text-sm font-light italic text-slate-400 mb-4 tracking-wide">The Birch Tech-Tree <span className="text-teal-400">v1.6</span></p>
                         <InteractiveProjectTree />
                     </div>
 
                     {/* The Root System */}
                     <div>
-                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
-                            <div>
-                                <h2 className="text-sm font-bold tracking-[0.5em] text-amber-700/60 uppercase mb-2">Underground</h2>
-                                <p className="text-2xl text-slate-100 font-light italic">Root System <span className="text-amber-400">— Growing</span></p>
-                            </div>
-                            <div className="hidden md:block text-right">
-                                <p className="text-xs text-slate-500 max-w-xs leading-relaxed uppercase tracking-widest opacity-60 font-medium">
-                                    Projects taking shape. Not yet in the canopy — still putting down roots.
-                                </p>
-                            </div>
-                        </div>
+                        <p className="text-sm font-light italic text-slate-400 mb-4 tracking-wide">Root System <span className="text-amber-400">— Growing</span></p>
                         <RootSystem />
                     </div>
                 </div>

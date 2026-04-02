@@ -8,22 +8,24 @@ export const metadata: Metadata = {
 
 const references = [
     {
-        name: 'La Luna Mystical',
+        name: 'Mystical La Luna',
         tagline: 'Mystical lifestyle & esoteric products',
         description: 'A brand-crafted website for a mystical lifestyle business. Built with atmospheric design, product presentation, and a tone that matches the brand\'s ethereal identity. Clean structure, fast performance, and mobile-first.',
-        url: 'https://lalunamystical.fi',
+        url: 'https://mysticalaluna.vercel.app',
         services: ['Website Design & Build', 'Brand-aligned UI', 'Mobile Optimization', 'Hosting & Deployment'],
         tech: ['Next.js', 'Tailwind CSS', 'Vercel'],
         year: '2026',
+        comingSoon: true,
     },
     {
         name: 'Karhun Kattila',
         tagline: 'Artisan food & Finnish culture',
         description: 'A website for a small artisan food brand rooted in Finnish tradition. The design reflects warmth, authenticity, and handcrafted quality. Built for clarity and ease of use, with integrated content management.',
-        url: 'https://karhunkattila.fi',
+        url: 'https://karhunkattila.vercel.app',
         services: ['Website Design & Build', 'Content Structure', 'SEO Foundation', 'Hosting & Deployment'],
         tech: ['Next.js', 'Firebase', 'Tailwind CSS'],
         year: '2026',
+        comingSoon: true,
     },
 ];
 
@@ -47,8 +49,20 @@ export default function ReferencesPage() {
                     {references.map((ref, i) => (
                         <section
                             key={ref.name}
-                            className="tree-glass p-8 md:p-12 group hover:border-teal-500/30 transition-all duration-500"
+                            className="relative tree-glass p-8 md:p-12 group hover:border-teal-500/30 transition-all duration-500 overflow-hidden"
                         >
+                            {/* "To Be Released" overlay */}
+                            {ref.comingSoon && (
+                                <div className="absolute inset-0 z-20 bg-slate-950/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3">
+                                    <span className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold tracking-[0.3em] uppercase">
+                                        To Be Released
+                                    </span>
+                                    <p className="text-slate-500 text-sm max-w-xs text-center">
+                                        This case study is being finalized with the client.
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
                                 {/* Left: Info */}
                                 <div className="lg:col-span-2">
@@ -68,17 +82,19 @@ export default function ReferencesPage() {
                                     <p className="text-slate-400 leading-relaxed mb-6">
                                         {ref.description}
                                     </p>
-                                    <a
-                                        href={ref.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold tracking-widest uppercase rounded-lg hover:bg-teal-500/20 transition-all"
-                                    >
-                                        Visit Site
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M7 17L17 7M17 7H7M17 7V17" />
-                                        </svg>
-                                    </a>
+                                    {!ref.comingSoon && (
+                                        <a
+                                            href={ref.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold tracking-widest uppercase rounded-lg hover:bg-teal-500/20 transition-all"
+                                        >
+                                            Visit Site
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M7 17L17 7M17 7H7M17 7V17" />
+                                            </svg>
+                                        </a>
+                                    )}
                                 </div>
 
                                 {/* Right: Details */}

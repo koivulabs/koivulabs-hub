@@ -116,7 +116,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSubmit, onC
                 <div className="space-y-4">
                     <label className="block text-xs font-bold uppercase text-slate-500 mb-1">
                         {project.zone === 'roots'
-                            ? `Roots Position — X: ${project.treePosition.x}, Y: ${project.treePosition.y} (used for ordering in root row)`
+                            ? `Roots Position — Click to set X: ${project.treePosition.x}, Y: ${project.treePosition.y}`
                             : `Tree Position — Click to set X: ${project.treePosition.x}, Y: ${project.treePosition.y}`
                         }
                     </label>
@@ -124,9 +124,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialProject, onSubmit, onC
                         className="relative aspect-video bg-slate-800 rounded-xl border-2 border-dashed border-slate-700 cursor-crosshair overflow-hidden group"
                         onClick={handlePositionChange}
                     >
-                        <div className="absolute inset-0 opacity-20 bg-[url('/images/birch_tech_tree.png')] bg-cover bg-center" />
+                        <div className={`absolute inset-0 opacity-20 bg-cover bg-center ${project.zone === 'roots' ? "bg-[url('/images/birch_tech_roots.png')]" : "bg-[url('/images/birch_tech_tree.png')]"}`} />
                         <div
-                            className="absolute w-4 h-4 bg-teal-500 rounded-full -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_rgba(45,212,191,0.5)] border-2 border-white"
+                            className={`absolute w-4 h-4 rounded-full -translate-x-1/2 -translate-y-1/2 border-2 border-white ${project.zone === 'roots' ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-teal-500 shadow-[0_0_10px_rgba(45,212,191,0.5)]'}`}
                             style={{ left: `${project.treePosition.x}%`, top: `${project.treePosition.y}%` }}
                         />
                     </div>
