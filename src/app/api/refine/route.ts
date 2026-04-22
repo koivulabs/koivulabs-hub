@@ -1,23 +1,9 @@
 import { NextResponse } from 'next/server';
-
-const rateLimitMap = new Map<string, { count: number; reset: number }>();
-
-function isRateLimited(ip: string): boolean {
-    const now = Date.now();
-    const entry = rateLimitMap.get(ip);
-    if (!entry || now > entry.reset) {
-        rateLimitMap.set(ip, { count: 1, reset: now + 60_000 });
-        return false;
-    }
-    if (entry.count >= 10) return true;
-    entry.count++;
-    return false;
-}
+import { isRateLimited, clientIp } from '@/lib/rateLimit';
 
 export async function POST(req: Request) {
     try {
-        const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
-        if (isRateLimited(ip)) {
+        if (isRateLimited(clientIp(req))) {
             return NextResponse.json({ error: 'Rate limit exceeded. Try again in a minute.' }, { status: 429 });
         }
 

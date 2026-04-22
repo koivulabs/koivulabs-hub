@@ -32,5 +32,8 @@
     "eslint-config-next": "15.5.12",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "uuid": "^14.0.0"
   }
 }

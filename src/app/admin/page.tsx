@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
@@ -34,11 +34,7 @@ export default function AdminPage() {
         return () => unsubscribe();
     }, [router]);
 
-    useEffect(() => {
-        loadData();
-    }, [activeTab]);
-
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         setLoading(true);
         try {
             if (activeTab === 'projects') {
@@ -53,7 +49,11 @@ export default function AdminPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [activeTab]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     const handleSaveProject = async (project: Project) => {
         try {
