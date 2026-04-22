@@ -34,5 +34,8 @@ next-env.d.ts
 /agenthub
 *.txt
 !public/llms.txt
+*.rar
+*.zip
+*.7z
  Aurora.
 .env*.local
