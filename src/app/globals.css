@@ -163,6 +163,14 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* Keep node-affordance rings visible when animations are killed —
+     otherwise pulse-ring's 100% keyframe leaves them at opacity: 0. */
+  .node-pulse, .node-pulse-amber {
+    animation: none !important;
+    opacity: 0.45;
+    transform: scale(1);
+  }
 }
 
 @media print {

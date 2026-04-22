@@ -279,8 +279,9 @@ export async function getInvoice(invoiceId: string): Promise<Invoice | null> {
 }
 
 export async function listInvoices(statusFilter?: 'open' | 'closed'): Promise<Invoice[]> {
-  const snap = await db().collection('invoices').limit(50).get();
-  const all = snap.docs
+  const ref = db().collection('invoices');
+  const snap = await (statusFilter ? ref.where('status', '==', statusFilter).get() : ref.get());
+  return snap.docs
     .map(doc => {
       const d = doc.data();
       return {
@@ -296,9 +297,6 @@ export async function listInvoices(statusFilter?: 'open' | 'closed'): Promise<In
       };
     })
     .filter(inv => inv.id);
-
-  if (statusFilter) return all.filter(inv => inv.status === statusFilter);
-  return all;
 }
 
 /** Find or create an open invoice for a client */
@@ -358,7 +356,7 @@ export async function saveTimeEntry(entry: TimeEntry): Promise<void> {
 }
 
 export async function listTimeEntriesByInvoice(invoiceId: string): Promise<TimeEntry[]> {
-  const snap = await db().collection('timeEntries').limit(100).get();
+  const snap = await db().collection('timeEntries').where('invoiceId', '==', invoiceId).get();
   return snap.docs
     .map(doc => {
       const d = doc.data();
@@ -377,7 +375,6 @@ export async function listTimeEntriesByInvoice(invoiceId: string): Promise<TimeE
         createdAt: d.createdAt ?? '',
       };
     })
-    .filter(e => e.invoiceId === invoiceId)
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
