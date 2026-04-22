@@ -52,13 +52,21 @@ export function toPublishedDate(publishedAt: any): Date | null {
 
 export const logService = {
     async getAllLogs(includeDrafts = false): Promise<DevLog[]> {
-        // Public queries must filter by status=='Published' to pass security rules.
+        // Public queries filter by status=='Published' to pass security rules.
+        // where+orderBy on different fields would need a composite index, so
+        // we sort client-side (dataset is small).
         // Admin panel sets includeDrafts=true and relies on the admin custom claim.
         const q = includeDrafts
             ? query(collection(db, LOGS_COLLECTION), orderBy("publishedAt", "desc"))
-            : query(collection(db, LOGS_COLLECTION), where("status", "==", "Published"), orderBy("publishedAt", "desc"));
+            : query(collection(db, LOGS_COLLECTION), where("status", "==", "Published"));
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => doc.data() as DevLog);
+        const logs = querySnapshot.docs.map(doc => doc.data() as DevLog);
+        if (includeDrafts) return logs;
+        return logs.sort((a, b) => {
+            const da = toPublishedDate(a.publishedAt)?.getTime() ?? 0;
+            const db = toPublishedDate(b.publishedAt)?.getTime() ?? 0;
+            return db - da;
+        });
     },
 
     async saveLog(log: DevLog): Promise<void> {
