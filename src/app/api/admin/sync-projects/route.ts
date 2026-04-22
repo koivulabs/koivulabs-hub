@@ -3,11 +3,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { projects } from '@/constants/projects';
 import { getAdminDb } from '@/lib/firebaseAdmin';
+import { checkAdminApiSecret } from '@/lib/adminAuth';
 
-export async function GET(req: NextRequest) {
-    const secret = req.nextUrl.searchParams.get('secret');
-    if (secret !== process.env.TELEGRAM_WEBHOOK_SECRET) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function POST(req: NextRequest) {
+    const auth = checkAdminApiSecret(req);
+    if (!auth.ok) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const db = getAdminDb();

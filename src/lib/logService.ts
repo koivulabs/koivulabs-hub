@@ -9,6 +9,7 @@ import {
     deleteDoc,
     query,
     orderBy,
+    where,
     Timestamp
 } from "firebase/firestore";
 
@@ -51,10 +52,13 @@ export function toPublishedDate(publishedAt: any): Date | null {
 
 export const logService = {
     async getAllLogs(includeDrafts = false): Promise<DevLog[]> {
-        const q = query(collection(db, LOGS_COLLECTION), orderBy("publishedAt", "desc"));
+        // Public queries must filter by status=='Published' to pass security rules.
+        // Admin panel sets includeDrafts=true and relies on the admin custom claim.
+        const q = includeDrafts
+            ? query(collection(db, LOGS_COLLECTION), orderBy("publishedAt", "desc"))
+            : query(collection(db, LOGS_COLLECTION), where("status", "==", "Published"), orderBy("publishedAt", "desc"));
         const querySnapshot = await getDocs(q);
-        const logs = querySnapshot.docs.map(doc => doc.data() as DevLog);
-        return includeDrafts ? logs : logs.filter(log => log.status === 'Published');
+        return querySnapshot.docs.map(doc => doc.data() as DevLog);
     },
 
     async saveLog(log: DevLog): Promise<void> {

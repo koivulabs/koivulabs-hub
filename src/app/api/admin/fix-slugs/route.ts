@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebaseAdmin';
+import { checkAdminApiSecret } from '@/lib/adminAuth';
 
 function fixSlug(slug: string): string {
     return slug
@@ -14,10 +15,10 @@ function fixSlug(slug: string): string {
 
 const BROKEN_SLUGS = ['admin panel', 'testi 2', 'continuous learning'];
 
-export async function GET(req: NextRequest) {
-    const secret = req.nextUrl.searchParams.get('secret');
-    if (secret !== process.env.TELEGRAM_WEBHOOK_SECRET) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function POST(req: NextRequest) {
+    const auth = checkAdminApiSecret(req);
+    if (!auth.ok) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const db = getAdminDb();
