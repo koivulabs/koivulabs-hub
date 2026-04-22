@@ -6,8 +6,12 @@ interface FirestoreDoc {
         title?: { stringValue: string };
         content?: { stringValue: string };
         status?: { stringValue: string };
-        publishedAt?: { timestampValue: string };
+        publishedAt?: { timestampValue?: string; stringValue?: string };
     };
+}
+
+function readPublishedAt(f: FirestoreDoc['fields']): string {
+    return f?.publishedAt?.timestampValue || f?.publishedAt?.stringValue || '';
 }
 
 function escapeXml(str: string): string {
@@ -37,15 +41,15 @@ export async function GET() {
             const docs: FirestoreDoc[] = (data.documents || [])
                 .filter((d: FirestoreDoc) => d.fields?.status?.stringValue === 'Published')
                 .sort((a: FirestoreDoc, b: FirestoreDoc) => {
-                    const ta = new Date(a.fields?.publishedAt?.timestampValue || 0).getTime();
-                    const tb = new Date(b.fields?.publishedAt?.timestampValue || 0).getTime();
+                    const ta = new Date(readPublishedAt(a.fields) || 0).getTime();
+                    const tb = new Date(readPublishedAt(b.fields) || 0).getTime();
                     return tb - ta;
                 });
 
             items = docs.map((d) => {
                 const title = d.fields.title?.stringValue || '';
                 const content = d.fields.content?.stringValue || '';
-                const pubDate = d.fields.publishedAt?.timestampValue || new Date().toISOString();
+                const pubDate = readPublishedAt(d.fields) || new Date().toISOString();
                 const slug = d.name.split('/').pop() || '';
                 const excerpt = content.replace(/\n/g, ' ').slice(0, 300);
 

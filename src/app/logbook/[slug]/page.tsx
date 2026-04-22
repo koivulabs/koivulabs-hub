@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { logService, DevLog } from '@/lib/logService';
+import { logService, DevLog, toPublishedDate } from '@/lib/logService';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ShareButtons from '@/components/ShareButtons';
@@ -52,7 +52,7 @@ export default function LogEntryPage({ params }: Props) {
                 <article>
                     <header className="mb-16">
                         <time className="text-teal-500/50 text-[10px] font-black tracking-widest uppercase block mb-6">
-                            {new Date(log.publishedAt?.seconds * 1000).toLocaleDateString('fi-FI')}
+                            {toPublishedDate(log.publishedAt)?.toLocaleDateString('fi-FI') ?? ''}
                         </time>
                         <h1 className="text-4xl md:text-6xl font-bold italic text-slate-100 leading-tight mb-6">
                             {log.title}

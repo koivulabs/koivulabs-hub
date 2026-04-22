@@ -27,6 +27,28 @@ export interface DevLog {
 
 const LOGS_COLLECTION = "logs";
 
+/** Normalize publishedAt into a Date.
+ *  Tolerates: Firestore Timestamp ({seconds}), ISO string (from Telegram bot),
+ *  REST API format ({timestampValue}), or missing/invalid. */
+export function toPublishedDate(publishedAt: any): Date | null {
+    if (!publishedAt) return null;
+    if (typeof publishedAt?.seconds === 'number') {
+        return new Date(publishedAt.seconds * 1000);
+    }
+    if (typeof publishedAt?.toDate === 'function') {
+        return publishedAt.toDate();
+    }
+    if (typeof publishedAt?.timestampValue === 'string') {
+        const d = new Date(publishedAt.timestampValue);
+        return isNaN(d.getTime()) ? null : d;
+    }
+    if (typeof publishedAt === 'string') {
+        const d = new Date(publishedAt);
+        return isNaN(d.getTime()) ? null : d;
+    }
+    return null;
+}
+
 export const logService = {
     async getAllLogs(includeDrafts = false): Promise<DevLog[]> {
         const q = query(collection(db, LOGS_COLLECTION), orderBy("publishedAt", "desc"));

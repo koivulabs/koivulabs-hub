@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { logService, DevLog } from '@/lib/logService';
+import { logService, DevLog, toPublishedDate } from '@/lib/logService';
 import Link from 'next/link';
 
 export default function LogbookPage() {
@@ -74,7 +74,7 @@ export default function LogbookPage() {
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     <time className="text-teal-500/50 text-[10px] font-black tracking-widest uppercase">
-                                        {new Date(log.publishedAt?.seconds * 1000).toLocaleDateString('fi-FI')}
+                                        {toPublishedDate(log.publishedAt)?.toLocaleDateString('fi-FI') ?? ''}
                                     </time>
                                     <Link href={`/logbook/${log.id}`}>
                                         <h2 className="text-3xl md:text-4xl font-bold text-slate-100 group-hover:text-teal-400 transition-colors cursor-pointer">
