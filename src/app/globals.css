@@ -164,12 +164,12 @@ body {
     transition-duration: 0.01ms !important;
   }
 
-  /* Keep node-affordance rings visible when animations are killed —
-     otherwise pulse-ring's 100% keyframe leaves them at opacity: 0. */
+  /* The tree-node pulse rings are a core brand affordance. Without the
+     animation the 100% keyframe leaves them at opacity:0, so we explicitly
+     re-enable pulse-ring here (conscious override of the wildcard rule). */
   .node-pulse, .node-pulse-amber {
-    animation: none !important;
-    opacity: 0.45;
-    transform: scale(1);
+    animation-duration: 3s !important;
+    animation-iteration-count: infinite !important;
   }
 }
 
