@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -17,20 +16,25 @@ export default function LoginPage() {
         setError('');
         setLoading(true);
         try {
-            const credential = await signInWithEmailAndPassword(auth, email, password);
-            const token = await credential.user.getIdToken();
-            await fetch('/api/auth/session', {
+            const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token }),
+                body: JSON.stringify({ email, password }),
             });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Authentication failed');
+            }
+
             router.push('/admin');
-        } catch {
-            setError('Access denied. Invalid credentials.');
+        } catch (e: any) {
+            console.error('Login error:', e);
+            setError(`Access denied: ${e?.message || 'Invalid credentials.'}`);
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <main className="min-h-screen bg-slate-950 flex items-center justify-center px-6">

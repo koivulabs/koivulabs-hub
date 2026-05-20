@@ -4,9 +4,11 @@
 
 import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import { getAuth, type Auth as AdminAuth } from 'firebase-admin/auth';
 
 let adminApp: App;
 let adminDb: Firestore;
+let adminAuth: AdminAuth;
 
 function getAdminApp(): App {
   if (!adminApp) {
@@ -15,7 +17,20 @@ function getAdminApp(): App {
       if (!serviceAccountJson) {
         throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY env var not set');
       }
-      const serviceAccount = JSON.parse(serviceAccountJson);
+
+      let serviceAccount;
+      try {
+        serviceAccount = JSON.parse(serviceAccountJson);
+      } catch (err) {
+        // Dotenv expands \n in double-quoted env vars to actual newlines.
+        // We escape actual newlines inside the private_key value to make it valid JSON.
+        const sanitized = serviceAccountJson.replace(
+          /("private_key"\s*:\s*")([\s\S]*?)"/g,
+          (match, p1, p2) => p1 + p2.replace(/\r?\n/g, '\\n') + '"'
+        );
+        serviceAccount = JSON.parse(sanitized);
+      }
+
       adminApp = initializeApp({
         credential: cert(serviceAccount),
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -27,9 +42,18 @@ function getAdminApp(): App {
   return adminApp;
 }
 
+
 export function getAdminDb(): Firestore {
   if (!adminDb) {
     adminDb = getFirestore(getAdminApp());
   }
   return adminDb;
 }
+
+export function getAdminAuth(): AdminAuth {
+  if (!adminAuth) {
+    adminAuth = getAuth(getAdminApp());
+  }
+  return adminAuth;
+}
+

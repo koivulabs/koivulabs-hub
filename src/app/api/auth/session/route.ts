@@ -1,8 +1,38 @@
 import { NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/sessionToken';
+import { cookies } from 'next/headers';
 
 const COOKIE = '__koivu_session';
 const SECURE = process.env.NODE_ENV === 'production';
+
+export async function GET() {
+    try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get(COOKIE)?.value;
+
+        if (!token) {
+            return NextResponse.json({ ok: false, error: 'No session' }, { status: 401 });
+        }
+
+        const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+        if (!projectId) {
+            return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+        }
+
+        const claims = await verifyAdminToken(token, projectId);
+        if (!claims) {
+            return NextResponse.json({ ok: false, error: 'Invalid session' }, { status: 401 });
+        }
+
+        const { getAdminAuth } = await import('@/lib/firebaseAdmin');
+        const customToken = await getAdminAuth().createCustomToken(claims.sub as string, { admin: true });
+
+        return NextResponse.json({ ok: true, customToken, email: claims.email });
+    } catch (error: any) {
+        console.error('Session GET error:', error);
+        return NextResponse.json({ ok: false, error: error.message || 'Internal server error' }, { status: 500 });
+    }
+}
 
 export async function POST(req: Request) {
     const { token } = await req.json();
@@ -35,3 +65,4 @@ export async function DELETE() {
     res.cookies.set(COOKIE, '', { httpOnly: true, secure: SECURE, sameSite: 'strict', maxAge: 0, path: '/' });
     return res;
 }
+

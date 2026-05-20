@@ -1,35 +1,44 @@
-import { db } from "./firebase";
-import {
-    collection,
-    getDocs,
-    doc,
-    setDoc,
-    updateDoc,
-    deleteDoc,
-    query,
-    orderBy
-} from "firebase/firestore";
 import { Project } from "@/constants/projects";
-
-const PROJECTS_COLLECTION = "projects";
 
 export const projectService = {
     async getAllProjects(): Promise<Project[]> {
-        const q = query(collection(db, PROJECTS_COLLECTION), orderBy("name"));
-        const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => doc.data() as Project);
+        const res = await fetch("/api/admin/projects");
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || "Failed to load projects");
+        }
+        return res.json();
     },
 
     async saveProject(project: Project): Promise<void> {
-        await setDoc(doc(db, PROJECTS_COLLECTION, project.id), project);
+        const res = await fetch("/api/admin/projects", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(project)
+        });
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || "Failed to save project");
+        }
     },
 
     async updateProject(projectId: string, data: Partial<Project>): Promise<void> {
-        const projectRef = doc(db, PROJECTS_COLLECTION, projectId);
-        await updateDoc(projectRef, data);
+        // Since POST has merge capability, we fetch, merge and save
+        const projects = await this.getAllProjects();
+        const existing = projects.find(p => p.id === projectId);
+        if (!existing) throw new Error("Project not found");
+
+        const updated = { ...existing, ...data };
+        await this.saveProject(updated);
     },
 
     async deleteProject(projectId: string): Promise<void> {
-        await deleteDoc(doc(db, PROJECTS_COLLECTION, projectId));
+        const res = await fetch(`/api/admin/projects?id=${projectId}`, {
+            method: "DELETE"
+        });
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || "Failed to delete project");
+        }
     }
 };

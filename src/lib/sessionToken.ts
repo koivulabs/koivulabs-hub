@@ -29,7 +29,8 @@ export async function verifyAdminToken(token: string, projectId: string): Promis
         const claims = payload as AdminTokenPayload;
         if (claims.admin !== true) return null;
         return claims;
-    } catch {
+    } catch (e: any) {
+        console.error('verifyAdminToken error:', e);
         return null;
     }
 }

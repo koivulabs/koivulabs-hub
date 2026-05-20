@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+
 import { useRouter } from 'next/navigation';
 import { projectService } from '@/lib/projectService';
 import { logService, DevLog } from '@/lib/logService';
@@ -24,15 +23,30 @@ export default function AdminPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                router.push('/admin/login');
-            } else {
-                setAuthChecked(true);
+        let isMounted = true;
+        const checkSession = async () => {
+            try {
+                const res = await fetch('/api/auth/session');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.ok) {
+                        if (isMounted) setAuthChecked(true);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error("Session verification failed:", err);
             }
-        });
-        return () => unsubscribe();
+            if (isMounted) {
+                router.push('/admin/login');
+            }
+        };
+        checkSession();
+        return () => {
+            isMounted = false;
+        };
     }, [router]);
+
 
     const loadData = useCallback(async () => {
         setLoading(true);
@@ -110,7 +124,7 @@ export default function AdminPage() {
                         <h1 className="text-4xl font-black text-slate-100 italic">
                             Lab <span className="text-teal-400">Control</span>
                         </h1>
-                        <div className="flex gap-4 mt-4">
+                        <div className="flex gap-4 mt-4 items-center">
                             <button
                                 onClick={() => setActiveTab('projects')}
                                 className={`text-[10px] font-black tracking-widest uppercase pb-1 border-b-2 transition-all ${activeTab === 'projects' ? 'text-teal-400 border-teal-400' : 'text-slate-500 border-transparent hover:text-slate-300'
@@ -124,6 +138,14 @@ export default function AdminPage() {
                                     }`}
                             >
                                 Dev Logs
+                            </button>
+                            <span className="text-slate-800 text-[10px]">|</span>
+                            <button
+                                onClick={() => router.push('/admin/audit-studio')}
+                                className="text-[10px] font-black tracking-widest uppercase pb-1 border-b-2 border-transparent text-teal-400/90 hover:text-teal-300 transition-all flex items-center gap-1.5"
+                            >
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+                                Audit Studio
                             </button>
                         </div>
                     </div>
@@ -146,7 +168,6 @@ export default function AdminPage() {
                         </button>
                         <button
                             onClick={async () => {
-                                await signOut(auth);
                                 await fetch('/api/auth/session', { method: 'DELETE' });
                                 router.push('/');
                             }}
