@@ -13,12 +13,12 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
-    "firebase": "^12.10.0",
-    "firebase-admin": "^13.8.0",
+    "firebase": "^12.14.0",
+    "firebase-admin": "^13.10.0",
     "framer-motion": "^12.35.0",
     "jose": "^6.2.2",
     "lucide-react": "^0.577.0",
-    "next": "^15.5.15",
+    "next": "^15.5.19",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
@@ -34,6 +34,7 @@
     "typescript": "^5"
   },
   "overrides": {
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.0",
+    "postcss": "^8.5.10"
   }
 }
