@@ -45,8 +45,9 @@ export default function ContactForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">Name</label>
+                    <label htmlFor="contact-name" className="block text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">Name</label>
                     <input
+                        id="contact-name"
                         name="name"
                         type="text"
                         required
@@ -57,8 +58,9 @@ export default function ContactForm() {
                     />
                 </div>
                 <div>
-                    <label className="block text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">Email</label>
+                    <label htmlFor="contact-email" className="block text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">Email</label>
                     <input
+                        id="contact-email"
                         name="email"
                         type="email"
                         required
@@ -71,8 +73,9 @@ export default function ContactForm() {
             </div>
 
             <div>
-                <label className="block text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">Subject</label>
+                <label htmlFor="contact-subject" className="block text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">Subject</label>
                 <select
+                    id="contact-subject"
                     name="subject"
                     required
                     value={form.subject}
@@ -88,8 +91,9 @@ export default function ContactForm() {
             </div>
 
             <div>
-                <label className="block text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">Message</label>
+                <label htmlFor="contact-message" className="block text-[10px] font-bold tracking-widest uppercase text-slate-500 mb-2">Message</label>
                 <textarea
+                    id="contact-message"
                     name="message"
                     required
                     rows={5}
@@ -101,7 +105,7 @@ export default function ContactForm() {
             </div>
 
             {status === 'error' && (
-                <p className="text-red-400 text-xs font-bold tracking-widest uppercase">
+                <p role="alert" className="text-red-400 text-xs font-bold tracking-widest uppercase">
                     Something went wrong. Email hello@koivulabs.com directly.
                 </p>
             )}

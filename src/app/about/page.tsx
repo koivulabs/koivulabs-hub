@@ -90,8 +90,8 @@ export default function AboutPage() {
                         {[
                             { date: 'Jan 2026', text: 'Clear decision: build AI-native from the ground up. Thesis defined, stack chosen, work begins.' },
                             { date: 'Feb 2026', text: 'First full-stack projects ship. Firebase, Next.js, real deployments. The tempo is set.' },
-                            { date: 'Mar 2026', text: 'Koivu Labs founded. KoivuChat MVP live in production. First paying clients in pipeline.' },
-                            { date: 'Now', text: 'Shipping features weekly. Multiple products in active development. The lab doesn\'t sleep.' },
+                            { date: 'Mar 2026', text: 'Koivu Labs founded. First client work begins — real sites for real businesses.' },
+                            { date: 'Now', text: 'Client sites shipped and live. Focus: quality over quantity, one project at a time.' },
                         ].map((item, i) => (
                             <div key={i} className="mb-10 relative">
                                 <div className="absolute -left-[41px] w-3 h-3 rounded-full bg-teal-500 border-2 border-slate-950 shadow-[0_0_8px_rgba(45,212,191,0.4)]" />

@@ -58,11 +58,15 @@ export default function NowPage() {
                 const toStrings = (field: { arrayValue?: { values?: Array<{ stringValue: string }> } }) =>
                     field?.arrayValue?.values?.map((v: { stringValue: string }) => v.stringValue) ?? [];
 
+                // Per-field fallback: a partial Firestore doc must not blank out a section
+                const orFallback = (values: string[], fallback: string[]) =>
+                    values.length > 0 ? values : fallback;
+
                 setData({
-                    building:  toStrings(f.building),
-                    learning:  toStrings(f.learning),
-                    reading:   toStrings(f.reading),
-                    notDoing:  toStrings(f.notDoing),
+                    building:  orFallback(toStrings(f.building), FALLBACK.building),
+                    learning:  orFallback(toStrings(f.learning), FALLBACK.learning),
+                    reading:   orFallback(toStrings(f.reading), FALLBACK.reading),
+                    notDoing:  orFallback(toStrings(f.notDoing), FALLBACK.notDoing),
                     location:  f.location?.stringValue ?? FALLBACK.location,
                     updatedAt: f.updatedAt?.stringValue ?? FALLBACK.updatedAt,
                 });

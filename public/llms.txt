@@ -1,8 +1,8 @@
 # Koivu Labs
 
-> A Finnish Software Studio focused on AI-driven utility. Bridging human common sense with AI power.
+> A Finnish software studio. Websites and AI integrations for Finnish businesses — real tools, built for real clients.
 
-Koivu Labs is an independent software studio founded in 2026 in Saarijärvi, Finland. The studio builds pragmatic, AI-first digital tools designed to solve real problems with minimal friction.
+Koivu Labs is an independent software studio founded in 2026 in Saarijärvi, Finland. The studio designs and builds websites, web applications and AI integrations with a pragmatic, no-hype approach.
 
 ## Studio
 
@@ -11,48 +11,21 @@ Koivu Labs is an independent software studio founded in 2026 in Saarijärvi, Fin
 - **Philosophy:** Pragmatic Intelligence — Nordic precision meets modern AI capability
 - **Contact:** hello@koivulabs.com
 
-## Products & Services
+## Services
 
-### KoivuChat — AI Chatbot for Finnish Businesses
+- **Build** — Websites, web applications and internal tools. Designed, built and deployed end to end. Stack: Next.js, React, TypeScript, Firebase, Tailwind CSS, Vercel.
+- **Consult** — Digital strategy and AI integration for businesses. Concrete recommendations, technical audits, hands-on implementation support.
+- **Experiment** — Rapid prototyping to validate ideas before committing to them.
 
-KoivuChat is a fully managed AI customer service chatbot for Finnish SMEs. It learns from the client's own documents and website, and answers customer questions 24/7 in Finnish. Ready within 48 hours.
+## Client Work
 
-**Key features:**
-- RAG (Retrieval-Augmented Generation) — answers based only on the client's own knowledge base
-- PDF upload and automatic website crawl (sitemap-based, up to 50 pages)
-- Full branding customization: bot name, avatar, color, quick replies
-- Lead capture form embedded in chat
-- Analytics dashboard with full conversation history
-- One-line JavaScript embed — works on any platform (WordPress, Webflow, Next.js, HTML)
-- EU data (Google Cloud europe-west3), GDPR compliant
-- Admin panel for managing knowledge base, branding, and usage quotas
-
-**Pricing (EUR, VAT 0%):**
-- Startti (Starter): 49€/month + 499€ setup — 200 messages/month, 3 knowledge sources, basic branding
-- Kasvu (Growth): 99€/month + 799€ setup — 1,000 messages/month, unlimited sources, full branding, lead capture
-- Pro: 199€/month + 1,490€ setup — 5,000 messages/month, 3 bots, white-label, SLA support
-- Annual billing saves ~20%. Contracts are 1 year, upgradeable anytime.
-- Bundle: Website + KoivuChat — 990€ setup + 49€/month
-
-**Target audience:** Finnish small and medium businesses — restaurants, retail, e-commerce, real estate, service companies.
-
-**Contact for KoivuChat:** hello@koivulabs.com | Subject: "KoivuChat — haluan aloittaa"
-
-## Projects
-
-- **BrainBuffer** — Thought capture at the speed of light. Minimalist tool for instant idea preservation.
-- **Human Dashboard** — Central OS for life and projects. Everything manageable in one sophisticated view.
-- **Vuoto** — Financial tracking and receipt management. Stop your money from leaking.
-- **JobBot** — Intelligent tool for job seeking and career management.
-- **Vibe Checker** — Analysis of social energy and vibes for optimized interaction.
-- **Vibe Coder** — Tool for utilizing the "vibe coding" method in modern development.
-- **MPM** — Multi-Project Manager. Early coding experiments in project organization.
+- **Mystical La Luna** — Brand-crafted website for a mystical lifestyle business. Design, build, hosting. (2026)
+- **Karhun Kattila** — Website for an artisan food brand rooted in Finnish tradition. Design, content structure, SEO foundation. (2026)
 
 ## Pages
 
-- [Home](https://koivulabs.com) — The Birch Tech-Tree ecosystem overview
-- [KoivuChat](https://koivulabs.com/koivuchat) — AI chatbot product for Finnish businesses
+- [Home](https://koivulabs.com) — Studio overview
+- [Work](https://koivulabs.com/references) — Client references
+- [Services](https://koivulabs.com/services) — What the studio offers
 - [Founder's Log](https://koivulabs.com/logbook) — Dev blog and studio updates
-- [Manifesto](https://koivulabs.com/about) — Studio philosophy and founder's journey
-- [Registry](https://koivulabs.com/registry) — Full project registry
-- [Services](https://koivulabs.com/services) — Studio services and consulting
+- [About](https://koivulabs.com/about) — Studio philosophy

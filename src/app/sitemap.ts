@@ -1,27 +1,15 @@
 import { MetadataRoute } from 'next';
-import { projects } from '@/constants/projects';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const base = 'https://koivulabs.com';
 
-    const staticRoutes: MetadataRoute.Sitemap = [
+    return [
         { url: base, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-        { url: `${base}/koivuchat`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-        { url: `${base}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-        { url: `${base}/logbook`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
-        { url: `${base}/registry`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
+        { url: `${base}/references`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
         { url: `${base}/services`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+        { url: `${base}/logbook`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+        { url: `${base}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
+        { url: `${base}/now`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.5 },
         { url: `${base}/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
-        { url: `${base}/now`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
-        { url: `${base}/case-study/brainbuffer`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
     ];
-
-    const projectRoutes: MetadataRoute.Sitemap = projects.map(project => ({
-        url: `${base}/${project.id}`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly',
-        priority: 0.8,
-    }));
-
-    return [...staticRoutes, ...projectRoutes];
 }

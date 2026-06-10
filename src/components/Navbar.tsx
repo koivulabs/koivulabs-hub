@@ -5,12 +5,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
-    { href: '/#lab', label: 'Projects' },
-    { href: '/logbook', label: 'Logbook' },
+    { href: '/references', label: 'Work' },
     { href: '/services', label: 'Services' },
-    { href: '/references', label: 'References' },
-    { href: '/koivuchat', label: 'KoivuChat', highlight: true },
-    { href: '/now', label: 'Now' },
+    { href: '/logbook', label: 'Logbook' },
     { href: '/about', label: 'About' },
 ];
 
@@ -21,13 +18,34 @@ const Navbar: React.FC = () => {
 
     useEffect(() => {
         const handler = () => setScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', handler);
+        window.addEventListener('scroll', handler, { passive: true });
         return () => window.removeEventListener('scroll', handler);
     }, []);
 
     useEffect(() => setOpen(false), [pathname]);
 
+    // Mobile menu: close on Escape, lock background scroll while open
+    useEffect(() => {
+        if (!open) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setOpen(false);
+        };
+        document.addEventListener('keydown', onKeyDown);
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.removeEventListener('keydown', onKeyDown);
+            document.body.style.overflow = prevOverflow;
+        };
+    }, [open]);
+
     if (pathname.startsWith('/admin')) return null;
+
+    // Hash links (/#lab) never match a pathname; nested routes highlight their section
+    const isActive = (href: string) => {
+        if (href.includes('#')) return false;
+        return pathname === href || pathname.startsWith(`${href}/`);
+    };
 
     return (
         <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-slate-950/90 backdrop-blur-md border-b border-slate-800/50' : 'bg-transparent'}`}>
@@ -41,12 +59,11 @@ const Navbar: React.FC = () => {
                         <Link
                             key={link.href}
                             href={link.href}
+                            aria-current={isActive(link.href) ? 'page' : undefined}
                             className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-colors ${
-                                pathname === link.href
+                                isActive(link.href)
                                     ? 'text-teal-400'
-                                    : link.highlight
-                                        ? 'text-teal-400/80 hover:text-teal-400 border border-teal-500/30 px-3 py-1.5 rounded-lg hover:bg-teal-500/10'
-                                        : 'text-slate-400 hover:text-slate-100'
+                                    : 'text-slate-400 hover:text-slate-100'
                             }`}
                         >
                             {link.label}
@@ -75,6 +92,8 @@ const Navbar: React.FC = () => {
                     className="md:hidden flex flex-col gap-1 p-2"
                     onClick={() => setOpen(!open)}
                     aria-label="Toggle menu"
+                    aria-expanded={open}
+                    aria-controls="mobile-menu"
                 >
                     <span className={`block w-5 h-0.5 bg-slate-400 transition-all duration-300 ${open ? 'rotate-45 translate-y-[6px]' : ''}`} />
                     <span className={`block w-5 h-0.5 bg-slate-400 transition-all duration-300 ${open ? 'opacity-0' : ''}`} />
@@ -83,12 +102,19 @@ const Navbar: React.FC = () => {
             </nav>
 
             {open && (
-                <div className="md:hidden bg-slate-950/95 backdrop-blur-md border-b border-slate-800/50 px-6 py-8 flex flex-col gap-6">
+                <div
+                    id="mobile-menu"
+                    className="md:hidden h-[calc(100dvh-4rem)] overflow-y-auto bg-slate-950/95 backdrop-blur-md border-b border-slate-800/50 px-6 py-8 flex flex-col gap-6"
+                >
                     {links.map(link => (
                         <Link
                             key={link.href}
                             href={link.href}
-                            className="text-sm font-bold tracking-widest uppercase text-slate-300 hover:text-teal-400 transition-colors"
+                            onClick={() => setOpen(false)}
+                            aria-current={isActive(link.href) ? 'page' : undefined}
+                            className={`text-sm font-bold tracking-widest uppercase transition-colors ${
+                                isActive(link.href) ? 'text-teal-400' : 'text-slate-300 hover:text-teal-400'
+                            }`}
                         >
                             {link.label}
                         </Link>

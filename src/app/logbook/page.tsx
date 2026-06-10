@@ -82,7 +82,8 @@ export default function LogbookPage() {
                                         </h2>
                                     </Link>
                                     <p className="text-slate-400 leading-relaxed text-lg line-clamp-3">
-                                        {log.content.split('\n').find(p => p.trim()) ?? ''}
+                                        {/* First plain-text paragraph — skip markdown headings and images */}
+                                        {log.content.split('\n').find(p => p.trim() && !/^[#!\[]/.test(p.trim())) ?? ''}
                                     </p>
                                     <div className="flex items-center justify-between mt-2">
                                         <div className="flex gap-2 flex-wrap">

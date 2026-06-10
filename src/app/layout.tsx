@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
 import BackToTop from "@/components/BackToTop";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif-display",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://koivulabs.com'),
   title: "Koivu Labs | Pragmatic Intelligence",
   description: "A Finnish Software Studio focused on AI-driven utility. Bridging human common sense with AI power.",
-  keywords: ["Koivu Labs", "AI", "Software Studio", "Finland", "Pragmatic Intelligence", "KoivuChat", "AI chatbot", "chatbotti suomi", "BrainBuffer", "Human Dashboard"],
+  keywords: ["Koivu Labs", "AI", "Software Studio", "Finland", "Saarijärvi", "Pragmatic Intelligence", "web development", "AI integration"],
   authors: [{ name: "Koivu Labs" }],
   icons: {
     icon: '/favicon.svg',
@@ -24,20 +32,13 @@ export const metadata: Metadata = {
     siteName: "Koivu Labs",
     locale: "en_FI",
     type: "website",
-    images: [
-      {
-        url: '/images/og-main.png',
-        width: 1200,
-        height: 630,
-        alt: 'Koivu Labs - Pragmatic Intelligence',
-      },
-    ],
+    // Image comes from app/opengraph-image.tsx (file convention) — do not
+    // override here: the previous hardcoded /images/og-main.png did not exist.
   },
   twitter: {
     card: "summary_large_image",
     title: "Koivu Labs | Pragmatic Intelligence",
     description: "A Finnish Software Studio focused on AI-driven utility.",
-    images: ['/images/og-main.png'],
   },
 };
 
@@ -54,16 +55,6 @@ const jsonLd = {
     name: 'Saarijärvi, Finland',
   },
   sameAs: ['https://github.com/koivulabs'],
-  makesOffer: {
-    '@type': 'Offer',
-    itemOffered: {
-      '@type': 'SoftwareApplication',
-      name: 'KoivuChat',
-      url: 'https://koivulabs.com/koivuchat',
-      description: 'AI-chatbotti suomalaiselle yritykselle. Oppii yrityksesi tiedoista ja vastaa asiakkaidesi kysymyksiin ympäri vuorokauden.',
-      applicationCategory: 'BusinessApplication',
-    },
-  },
 };
 
 export default function RootLayout({
@@ -79,10 +70,19 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${inter.className} min-h-screen bg-slate-950 text-slate-50`}>
+      <body className={`${inter.className} ${instrumentSerif.variable} min-h-screen bg-slate-950 text-slate-50`}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:px-4 focus:py-2 focus:bg-teal-500 focus:text-slate-950 focus:font-bold focus:rounded-lg"
+        >
+          Skip to content
+        </a>
         <ScrollProgress />
         <Navbar />
-        {children}
+        <div id="main-content">
+          {children}
+        </div>
+        <Footer />
         <BackToTop />
       </body>
     </html>

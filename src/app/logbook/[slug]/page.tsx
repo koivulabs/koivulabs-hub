@@ -5,7 +5,6 @@ import { logService, DevLog, toPublishedDate } from '@/lib/logService';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ShareButtons from '@/components/ShareButtons';
-import ScrollProgress from '@/components/ScrollProgress';
 
 interface Props {
     params: Promise<{ slug: string }>;
@@ -34,16 +33,30 @@ export default function LogEntryPage({ params }: Props) {
     }, [params]);
 
     if (loading) return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-            <div className="text-teal-500 animate-pulse font-black italic text-2xl">OPENING LOG...</div>
-        </div>
+        <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24" aria-busy="true" aria-label="Loading log entry">
+            <div className="max-w-3xl mx-auto animate-pulse space-y-6">
+                <div className="h-3 w-32 bg-slate-800 rounded" />
+                <div className="h-12 w-5/6 bg-slate-800 rounded" />
+                <div className="h-12 w-3/5 bg-slate-800 rounded" />
+                <div className="flex gap-2 pt-2">
+                    <div className="h-5 w-16 bg-slate-800 rounded-full" />
+                    <div className="h-5 w-20 bg-slate-800 rounded-full" />
+                </div>
+                <div className="space-y-3 pt-10">
+                    <div className="h-4 w-full bg-slate-800 rounded" />
+                    <div className="h-4 w-full bg-slate-800 rounded" />
+                    <div className="h-4 w-4/5 bg-slate-800 rounded" />
+                    <div className="h-4 w-full bg-slate-800 rounded" />
+                    <div className="h-4 w-2/3 bg-slate-800 rounded" />
+                </div>
+            </div>
+        </main>
     );
 
     if (missing || !log) return notFound();
 
     return (
         <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24">
-            <ScrollProgress />
             <div className="max-w-3xl mx-auto">
                 <Link href="/logbook" className="text-teal-500 text-xs font-bold tracking-widest uppercase hover:underline mb-12 inline-block">
                     ← Back to Logbook

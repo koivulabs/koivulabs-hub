@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 
 export default function LoginPage() {
@@ -27,9 +28,10 @@ export default function LoginPage() {
             }
 
             router.push('/admin');
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error('Login error:', e);
-            setError(`Access denied: ${e?.message || 'Invalid credentials.'}`);
+            const message = e instanceof Error ? e.message : 'Invalid credentials.';
+            setError(`Access denied: ${message}`);
         } finally {
             setLoading(false);
         }
@@ -44,9 +46,9 @@ export default function LoginPage() {
                         Lab <span className="text-teal-400">Access</span>
                     </h1>
                     <p className="text-slate-500 text-xs mt-2 tracking-widest uppercase">Restricted Zone</p>
-                <a href="/" className="text-slate-600 hover:text-teal-400 text-[10px] tracking-widest uppercase transition-colors mt-3 inline-block">
+                <Link href="/" className="text-slate-600 hover:text-teal-400 text-[10px] tracking-widest uppercase transition-colors mt-3 inline-block">
                     ← Back to Koivu Labs
-                </a>
+                </Link>
                 </div>
 
                 <form onSubmit={handleLogin} className="tree-glass p-8 space-y-6">
@@ -80,7 +82,7 @@ export default function LoginPage() {
                     </div>
 
                     {error && (
-                        <p className="text-red-400 text-xs font-bold tracking-wide">{error}</p>
+                        <p role="alert" className="text-red-400 text-xs font-bold tracking-wide">{error}</p>
                     )}
 
                     <button
