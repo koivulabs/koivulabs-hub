@@ -5,6 +5,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollProgress from "@/components/ScrollProgress";
 import BackToTop from "@/components/BackToTop";
+import AuroraRoute from "@/components/AuroraRoute";
+import SmoothScroll from "@/components/SmoothScroll";
+import CustomCursor from "@/components/CustomCursor";
+import MotionProvider from "@/components/MotionProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -77,13 +81,16 @@ export default function RootLayout({
         >
           Skip to content
         </a>
+        <AuroraRoute />
+        <SmoothScroll />
         <ScrollProgress />
         <Navbar />
-        <div id="main-content">
-          {children}
+        <div id="main-content" className="relative z-10">
+          <MotionProvider>{children}</MotionProvider>
         </div>
         <Footer />
         <BackToTop />
+        <CustomCursor />
       </body>
     </html>
   );

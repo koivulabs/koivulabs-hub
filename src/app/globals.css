@@ -63,10 +63,6 @@
   --birch-gradient-color: rgba(45, 212, 191, 0.1);
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
   color: var(--foreground);
   background: var(--background);

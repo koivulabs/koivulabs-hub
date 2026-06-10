@@ -48,7 +48,7 @@ const services = [
 
 export default function ServicesPage() {
     return (
-        <main className="min-h-screen pt-32 pb-32 px-6 md:px-12 lg:px-24 bg-slate-950">
+        <main className="min-h-screen pt-32 pb-32 px-6 md:px-12 lg:px-24">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-24">
                     <div className="inline-block px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-[10px] font-bold tracking-[0.3em] uppercase mb-6">

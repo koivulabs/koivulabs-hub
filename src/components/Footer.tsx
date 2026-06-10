@@ -45,7 +45,7 @@ const Footer: React.FC = () => {
     if (pathname.startsWith('/admin')) return null;
 
     return (
-        <footer className="relative z-10 border-t border-slate-800/50 bg-slate-950">
+        <footer className="relative z-10 border-t border-slate-800/50">
             <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-10">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
                     {/* Brand */}

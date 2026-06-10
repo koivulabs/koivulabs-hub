@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Reveal from '@/components/Reveal';
+import Magnetic from '@/components/MagneticLink';
 
 const work = [
   { name: 'Mystical La Luna', meta: 'Brand site · 2026' },
@@ -13,7 +15,7 @@ const services = [
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-slate-950">
+    <main className="relative min-h-screen">
       {/* Hero */}
       <section className="relative pt-36 pb-24 md:pt-48 md:pb-36 px-6 md:px-12">
         <div className="absolute inset-0 dot-grid pointer-events-none" aria-hidden="true" />
@@ -29,12 +31,23 @@ export default function Home() {
             Websites and AI integrations for Finnish businesses.
             No hype — shipped work.
           </p>
+          <div className="mt-12">
+            <Magnetic>
+              <a
+                href="mailto:hello@koivulabs.com"
+                className="inline-flex items-center gap-3 px-7 py-3.5 rounded-full border border-teal-500/40 text-teal-400 text-xs font-bold tracking-[0.22em] uppercase hover:border-teal-400 hover:bg-teal-500/10 transition-colors backdrop-blur-sm"
+              >
+                Start a project
+                <span aria-hidden="true">→</span>
+              </a>
+            </Magnetic>
+          </div>
         </div>
       </section>
 
       {/* Selected Work */}
       <section className="px-6 md:px-12 pb-24 md:pb-36">
-        <div className="max-w-5xl mx-auto">
+        <Reveal className="max-w-5xl mx-auto">
           <div className="flex items-baseline justify-between mb-2">
             <h2 className="text-[11px] font-bold tracking-[0.35em] uppercase text-slate-500">
               Selected Work
@@ -63,12 +76,12 @@ export default function Home() {
               </Link>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* Services */}
       <section className="px-6 md:px-12 pb-24 md:pb-36">
-        <div className="max-w-5xl mx-auto">
+        <Reveal className="max-w-5xl mx-auto" delay={0.1}>
           <div className="flex items-baseline justify-between mb-2">
             <h2 className="text-[11px] font-bold tracking-[0.35em] uppercase text-slate-500">
               Services
@@ -94,24 +107,26 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* Contact */}
       <section className="px-6 md:px-12 pb-28 md:pb-40">
-        <div className="max-w-5xl mx-auto">
+        <Reveal className="max-w-5xl mx-auto">
           <p className="text-3xl md:text-5xl font-semibold tracking-tight text-slate-100 leading-tight max-w-2xl mb-10">
             Have a project in mind?{' '}
             <em className="serif-display font-normal text-slate-500">Let&rsquo;s keep it simple.</em>
           </p>
-          <a
-            href="mailto:hello@koivulabs.com"
-            className="inline-flex items-baseline gap-3 text-lg md:text-xl text-teal-400 hover:text-teal-300 transition-colors font-medium"
-          >
-            hello@koivulabs.com
-            <span className="text-sm">→</span>
-          </a>
-        </div>
+          <Magnetic>
+            <a
+              href="mailto:hello@koivulabs.com"
+              className="inline-flex items-baseline gap-3 text-lg md:text-xl text-teal-400 hover:text-teal-300 transition-colors font-medium"
+            >
+              hello@koivulabs.com
+              <span className="text-sm" aria-hidden="true">→</span>
+            </a>
+          </Magnetic>
+        </Reveal>
       </section>
     </main>
   );

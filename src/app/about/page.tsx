@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
     return (
-        <main className="min-h-screen pt-24 pb-32 px-6 md:px-12 lg:px-24 bg-slate-950">
+        <main className="min-h-screen pt-24 pb-32 px-6 md:px-12 lg:px-24">
             <Link href="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-teal-400 transition-colors mb-16 uppercase tracking-widest text-xs font-bold">
                 ← Return to Hub
             </Link>

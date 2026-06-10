@@ -24,7 +24,7 @@ export default function LogbookPage() {
     }, []);
 
     if (loading) return (
-        <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24">
+        <main className="min-h-screen pt-32 pb-24 px-6 md:px-12 lg:px-24">
             <div className="max-w-3xl mx-auto space-y-16">
                 {[1, 2, 3].map(i => (
                     <div key={i} className="animate-pulse space-y-4">
@@ -40,7 +40,7 @@ export default function LogbookPage() {
     );
 
     return (
-        <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24">
+        <main className="min-h-screen pt-32 pb-24 px-6 md:px-12 lg:px-24">
             <div className="max-w-3xl mx-auto">
                 <header className="mb-20">
                     <Link href="/" className="text-teal-500 text-xs font-bold tracking-widest uppercase hover:underline mb-8 inline-block">

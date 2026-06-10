@@ -33,7 +33,7 @@ export default function LogEntryPage({ params }: Props) {
     }, [params]);
 
     if (loading) return (
-        <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24" aria-busy="true" aria-label="Loading log entry">
+        <main className="min-h-screen pt-32 pb-24 px-6 md:px-12 lg:px-24" aria-busy="true" aria-label="Loading log entry">
             <div className="max-w-3xl mx-auto animate-pulse space-y-6">
                 <div className="h-3 w-32 bg-slate-800 rounded" />
                 <div className="h-12 w-5/6 bg-slate-800 rounded" />
@@ -56,7 +56,7 @@ export default function LogEntryPage({ params }: Props) {
     if (missing || !log) return notFound();
 
     return (
-        <main className="min-h-screen bg-slate-950 pt-32 pb-24 px-6 md:px-12 lg:px-24">
+        <main className="min-h-screen pt-32 pb-24 px-6 md:px-12 lg:px-24">
             <div className="max-w-3xl mx-auto">
                 <Link href="/logbook" className="text-teal-500 text-xs font-bold tracking-widest uppercase hover:underline mb-12 inline-block">
                     ← Back to Logbook

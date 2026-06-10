@@ -61,3 +61,28 @@ content. Earlier bug fixes (OG image, shared footer, focus styles) remain.
 `npx tsc --noEmit` 0 errors → `next build` passes → preview: all remaining
 routes render, removed routes 404, no console errors, no horizontal scroll at
 375 px, mobile menu works, desktop 1440 px checked.
+
+---
+
+## Addendum 2026-06-10: "Killer package" (approved in chat)
+
+Interactive WebGL layer on top of the editorial-noir base:
+
+- **AuroraBackground** — raw-WebGL fbm aurora shader, cursor-warp + glow trail,
+  60 % render scale, tab-visibility pause. Modes: `animated` (default desktop),
+  `still` (prefers-reduced-motion → ONE frozen rich frame, zero movement),
+  `static` (coarse pointer / no WebGL → CSS gradient). Mounted via AuroraRoute:
+  home intensity 1.0, other pages 0.4, admin off.
+- **Magnetic** — cursor-pull wrapper (hero CTA, contact email, navbar Contact).
+- **CustomCursor** — trailing teal ring, augments (never replaces) native cursor.
+- **Reveal** — framer-motion whileInView; reduced-motion handled ONLY via
+  MotionProvider (MotionConfig reducedMotion="user") — branching the tree on
+  useReducedMotion causes SSR hydration mismatches (learned the hard way).
+- **SmoothScroll** — Lenis (autoRaf, anchors), skipped for touch/reduced/admin.
+  Global CSS scroll-behavior removed in favor of Lenis anchors.
+- Page mains lost their opaque bg so the fixed canvas shows through;
+  #main-content wrapper is relative z-10.
+- Note: this Windows machine has OS animations off → prefers-reduced-motion is
+  on in every browser here → 'still' mode shows. Flip Windows
+  Settings → Accessibility → Visual effects → Animation effects to see the
+  living aurora locally.
