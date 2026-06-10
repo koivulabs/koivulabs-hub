@@ -94,6 +94,17 @@ export default function AuroraBackground({ intensity = 1 }: AuroraBackgroundProp
     // 'still' = reduced motion: render ONE rich shader frame, zero movement
     const [mode, setMode] = useState<AuroraMode | null>(null);
 
+    // Intensity lives in a ref so route changes do NOT re-run the GL effect.
+    // Tearing the effect down calls loseContext(), and a canvas whose context
+    // was lost can never be re-initialized — subpages would go dark.
+    const intensityRef = useRef(intensity);
+    const redrawStillRef = useRef<(() => void) | null>(null);
+
+    useEffect(() => {
+        intensityRef.current = intensity;
+        redrawStillRef.current?.();
+    }, [intensity]);
+
     useEffect(() => {
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
@@ -164,7 +175,7 @@ export default function AuroraBackground({ intensity = 1 }: AuroraBackgroundProp
             }
             gl.uniform2f(uRes, canvas.width, canvas.height);
             gl.uniform1f(uT, timeSeconds);
-            gl.uniform1f(uIntensity, intensity);
+            gl.uniform1f(uIntensity, intensityRef.current);
             gl.uniform3fv(uTrail, flat);
             gl.drawArrays(gl.TRIANGLES, 0, 3);
         };
@@ -172,10 +183,12 @@ export default function AuroraBackground({ intensity = 1 }: AuroraBackgroundProp
         // Reduced motion: one rich frozen frame, zero movement, no listeners
         if (mode === 'still') {
             drawFrame(21.7);
+            redrawStillRef.current = () => drawFrame(21.7);
             const redraw = () => { resize(); drawFrame(21.7); };
             window.removeEventListener('resize', resize);
             window.addEventListener('resize', redraw);
             return () => {
+                redrawStillRef.current = null;
                 window.removeEventListener('resize', redraw);
                 gl.getExtension('WEBGL_lose_context')?.loseContext();
             };
@@ -217,7 +230,7 @@ export default function AuroraBackground({ intensity = 1 }: AuroraBackgroundProp
             document.removeEventListener('visibilitychange', onVisibility);
             gl.getExtension('WEBGL_lose_context')?.loseContext();
         };
-    }, [mode, intensity]);
+    }, [mode]);
 
     if (mode !== 'animated' && mode !== 'still') return <StaticAurora intensity={mode === null ? 0 : intensity} />;
 
